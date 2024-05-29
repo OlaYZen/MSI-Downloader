@@ -6,7 +6,8 @@
     "checkExist": false
   },
   "logging": {
-    "fileName": "chrome_downloader.log",
+    "fileName": "chrome_downloader",
+    "fileFormat": "log",
     "logDateFormat": "dd/MM/yyyy HH:mm:ss"
   }
 }

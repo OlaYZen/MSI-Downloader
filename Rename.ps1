@@ -13,15 +13,21 @@ $forceUpdateFolder = Join-Path -Path $PSScriptRoot -ChildPath "Chrome - VERSION_
 
 # Function to log messages with the specified date format
 $logFileName = $config.logging.fileName
+$logFileFormat = $config.logging.fileFormat
 if (-not $logFileName) {
     $logFileName = "chrome_downloader.log"
 }
+if (-not $logFileFormat) {
+    $logFileFormat = "log"
+}
+$logFileNameFormat = $logFileName+"."+$logFileFormat
+
 function Log-Message {
     param (
         [string]$message
     )
     $timestamp = Get-Date -Format $dateFormat
-    Write-Output "[$timestamp] - $message" | Out-File -Append -FilePath "$PSScriptRoot\$logFileName" -Encoding utf8
+    Write-Output "[$timestamp] - $message" | Out-File -Append -FilePath "$PSScriptRoot\$logFileNameFormat" -Encoding utf8
 }
 
 if ($config.options.enableRegularVersion -and -not $config.options.enableForcedVersion) {

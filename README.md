@@ -19,7 +19,8 @@ The `config.json` file should be structured as follows:
     "checkExist": false
   },
   "logging": {
-    "fileName": "chrome_downloader.log",
+    "fileName": "chrome_downloader",
+    "fileFormat": "log",
     "logDateFormat": "dd/MM/yyyy HH:mm:ss"
 
   }
@@ -30,7 +31,8 @@ The `config.json` file should be structured as follows:
 - `enableForcedVersion`: A boolean flag to enable downloading and installing the forced update version of Chrome.
 - `folderNumberedVersion`: A boolean flag to enable the automatic renaming of the folder to the newest version of Chrome. ⚠️ **This option requires administrative privileges when executing the script!** ⚠️
 - `checkExist`: A boolean flag to delete old Chrome folders when the script is executed. ⚠️ **This action will delete your Chrome folders, so ensure you have backups if you wish to retain them.** ⚠️
-- `fileName`: A string defining the name of the log file. The default format is `chrome_downloader.log`.
+- `fileName`: A string defining the name of the log file. The default name is `chrome_downloader`.
+- `fileFormat`: A string defining the format of the log file. The default format is `log`.
 - `logDateFormat`: A string defining the format of timestamps in logs. The default format is `dd/MM/yyyy HH:mm:ss`.
 
 
@@ -110,7 +112,7 @@ You can download the script using `git clone` command. Follow these steps:
 2. Navigate to the directory where you want to download the script.
 3. Run the following command:
 ```
-git clone https://github.com/OlaYZen/Chrome-Downloader.git
+git clone https://forgejo.olayzen.com/OlaYZen/Chrome-Downloader.git
 ```
 
 This command will clone the repository into your current directory.
