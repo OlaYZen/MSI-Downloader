@@ -1,6 +1,6 @@
-# Google Chrome Downloader MSI Script
+# Google Chrome & Amazon Workspaces Downloader MSI Script
 
-This PowerShell script automates the process of downloading and organizing Google Chrome installers based on specified configurations. It supports downloading both 64-bit and 32-bit versions of Chrome and organizing them into appropriate folders.
+This PowerShell script automates the process of downloading and organizing Google Chrome and Amazon Workspaces installers based on specified configurations. It supports downloading both 64-bit and 32-bit versions of Chrome and organizing them into appropriate folders. (64-bit only on Amazon Workspaces)
 
 ## Script Overview
 
@@ -12,26 +12,40 @@ The script reads its configuration from a JSON file named config.json located in
 The `config.json` file should be structured as follows:
 ```json
 {
-  "options": {
-    "enableRegularVersion": true,
-    "enableForcedVersion": false,
-    "folderNumberedVersion": false,
-    "checkExist": false
+  "chrome":{
+    "options": {
+      "enableRegularVersion": true,
+      "enableForcedVersion": false,
+      "folderNumberedVersion": false,
+      "checkExist": false
+      },
+      "logging": {
+        "fileName": "google_chrome",
+        "fileFormat": "log",
+        "logDateFormat": "dd/MM/yyyy HH:mm:ss"
+      }
   },
-  "logging": {
-    "fileName": "chrome_downloader",
-    "fileFormat": "log",
-    "logDateFormat": "dd/MM/yyyy HH:mm:ss"
-
+  "amazonWorkspace":{
+    "options": {
+      "download": false,
+      "folderNumberedVersion": false,
+      "checkExist": false
+      },
+      "logging": {
+        "fileName": "amazon_workspace",
+        "fileFormat": "log",
+        "logDateFormat": "dd/MM/yyyy HH:mm:ss"
+      }
   }
 }
 ```
 
 - `enableRegularVersion`: A boolean flag to enable downloading and installing the regular version of Chrome.
 - `enableForcedVersion`: A boolean flag to enable downloading and installing the forced update version of Chrome.
+- `download`: A boolean flag to enable downloading and installing Amazon Workspaces.
 - `folderNumberedVersion`: A boolean flag to enable the automatic renaming of the folder to the newest version of Chrome. ⚠️ **This option requires administrative privileges when executing the script!** ⚠️
 - `checkExist`: A boolean flag to delete old Chrome folders when the script is executed. ⚠️ **This action will delete your Chrome folders, so ensure you have backups if you wish to retain them.** ⚠️
-- `fileName`: A string defining the name of the log file. The default name is `chrome_downloader`.
+- `fileName`: A string defining the name of the log file. The default name is `google_chrome` and  `amazon_workspace`.
 - `fileFormat`: A string defining the format of the log file. The default format is `log`.
 - `logDateFormat`: A string defining the format of timestamps in logs. The default format is `dd/MM/yyyy HH:mm:ss`.
 
@@ -103,6 +117,7 @@ Ensure that `config.json` is present in the same directory as the script.
 Create the following template folders and populate them with necessary files:
 - `Template\Chrome-Template`
 - `Template\Chrome-Template-Forced`
+- `Template\Amazon-Workspace-Template`
 
 ### 2. Downloading the Script:
 
@@ -112,7 +127,7 @@ You can download the script using `git clone` command. Follow these steps:
 2. Navigate to the directory where you want to download the script.
 3. Run the following command:
 ```
-git clone https://forgejo.olayzen.com/OlaYZen/Chrome-Downloader.git
+git clone https://forgejo.olayzen.com/OlaYZen/MSI-Downloader.git
 ```
 
 This command will clone the repository into your current directory.
@@ -122,9 +137,9 @@ This command will clone the repository into your current directory.
 - Open PowerShell and navigate to the directory containing the script and config.json.
 - Execute the script:
 ```css
-& '.\Chrome Downloader.ps1' 
+& '.\Downloader.ps1' 
 ```
 
 ### 4. Monitor the Logs:
 
-- Check `chrome_downloader.log` in the script directory for detailed logs of the execution process, including any errors encountered.
+- Check `google_chrome.log` or `amazon_workspace.log` in the script directory for detailed logs of the execution process, including any errors encountered.

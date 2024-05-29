@@ -1,4 +1,5 @@
 
 /Template
-chrome_downloader.log
+*.log
 /Chrome - *
+/Amazon Workspace - *

@@ -1,13 +1,27 @@
 {
-  "options": {
-    "enableRegularVersion": true,
-    "enableForcedVersion": false,
-    "folderNumberedVersion": false,
-    "checkExist": false
+  "chrome":{
+    "options": {
+      "enableRegularVersion": true,
+      "enableForcedVersion": false,
+      "folderNumberedVersion": false,
+      "checkExist": false
+      },
+      "logging": {
+        "fileName": "google_chrome",
+        "fileFormat": "log",
+        "logDateFormat": "dd/MM/yyyy HH:mm:ss"
+      }
   },
-  "logging": {
-    "fileName": "chrome_downloader",
-    "fileFormat": "log",
-    "logDateFormat": "dd/MM/yyyy HH:mm:ss"
+  "amazonWorkspace":{
+    "options": {
+      "download": false,
+      "folderNumberedVersion": false,
+      "checkExist": false
+      },
+      "logging": {
+        "fileName": "amazon_workspace",
+        "fileFormat": "log",
+        "logDateFormat": "dd/MM/yyyy HH:mm:ss"
+      }
   }
 }
