@@ -2,6 +2,9 @@
 $configPath = "$PSScriptRoot\config.json"
 $config = Get-Content -Path $configPath | ConvertFrom-Json
 
+$chromeNaming = $config.chrome.options.folderName
+$workspacesNaming = $config.amazonWorkspace.options.folderName
+
 # Get the date format from the configuration, or use the default format if not provided
 $chromedateFormat = $config.chrome.logging.logDateFormat
 if (-not $chromedateFormat) {
@@ -9,8 +12,8 @@ if (-not $chromedateFormat) {
 }
 
 # Function to log messages with the specified date format
-$chromelogFileName = $config.chrome.logging.fileName
-$chromelogFileFormat = $config.chrome.logging.fileFormat
+$chromelogFileName = $config.chrome.logging.logName
+$chromelogFileFormat = $config.chrome.logging.logFormat
 if (-not $chromelogFileName) {
     $chromelogFileName = "google_chrome"
 }
@@ -21,16 +24,16 @@ if (-not $chromelogFileFormat) {
 $chromelogFileNameFormat = $chromelogFileName+"."+$chromelogFileFormat
 
 # Get the date format from the configuration, or use the default format if not provided
-$amazonworkspacedateFormat = $config.chrome.logging.logDateFormat
+$amazonworkspacedateFormat = $config.amazonWorkspace.logging.logDateFormat
 if (-not $amazonworkspacedateFormat) {
     $amazonworkspacedateFormat = "dd'/'MM'/'yyyy HH:mm:ss"
 }
 
 # Function to log messages with the specified date format
-$amazonworkspacelogFileName = $config.amazonWorkspace.logging.fileName
-$amazonworkspacelogFileFormat = $config.amazonWorkspace.logging.fileFormat
+$amazonworkspacelogFileName = $config.amazonWorkspace.logging.logName
+$amazonworkspacelogFileFormat = $config.amazonWorkspace.logging.logFormat
 if (-not $amazonworkspacelogFileName) {
-    $amazonworkspacelogFileName = "amazon_workspace"
+    $amazonworkspacelogFileName = "amazon_workspaces"
 }
 if (-not $amazonworkspacelogFileFormat) {
     $amazonworkspacelogFileFormat = "log"
@@ -42,14 +45,14 @@ if ($config.chrome.logging.clearLogs) {
     # Construct the full path to the log file
     $logFilePathchrome = Join-Path -Path $PSScriptRoot -ChildPath $chromelogFileNameFormat
     # Clear the contents of the log file
-    Set-Content -Path $logFilePathchrome -Value ''
+    Set-Content -Path $logFilePathchrome -Value $null
 }
 
 if ($config.amazonWorkspace.logging.clearLogs) {
     # Construct the full path to the log file
     $logFilePathworkspaces = Join-Path -Path $PSScriptRoot -ChildPath $amazonworkspacelogFileNameFormat
     # Clear the contents of the log file
-    Set-Content -Path $logFilePathworkspaces -Value ''
+    Set-Content -Path $logFilePathworkspaces -Value $null 
 }
 
 function chrome-Log-Message {
@@ -79,7 +82,7 @@ if (-not $config.chrome.options.enableRegularVersion -and -not $config.chrome.op
 }
 
 # Log the start of the script
-if ($config.amazonWorkspace.logging.fileName -eq $config.chrome.logging.fileName) {
+if ($config.amazonWorkspace.logging.logName -eq $config.chrome.logging.logName) {
     chrome-Log-Message "Debug: Script started"
 }
 else {
@@ -95,7 +98,7 @@ else {
 }
 
 if ($config.chrome.options.checkExist) {
-    $testPath = "$PSScriptRoot\Chrome - *"
+    $testPath = "$PSScriptRoot\$chromeNaming *"
 
     # Store subfolders before deletion
     $subfolders = @()
@@ -113,7 +116,7 @@ if ($config.chrome.options.checkExist) {
     }
 }
 if ($config.amazonWorkspace.options.checkExist) {
-    $amazonworkspacetestPath = "$PSScriptRoot\Amazon Workspace - *"
+    $amazonworkspacetestPath = "$PSScriptRoot\$workspacesNaming *"
 
     # Store subfolders before deletion
     $amazonworkspacesubfolders = @()
@@ -145,21 +148,21 @@ $sourceFolderRegular = "$PSScriptRoot\Template\Chrome-Template"
 $sourceFolderForced = "$PSScriptRoot\Template\Chrome-Template-Forced"
 $amazonworkspacesourceFolderRegular = "$PSScriptRoot\Template\Amazon-Workspace-Template"
 
-$destinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "Chrome - VERSION"
-$forceUpdateFolder = Join-Path -Path $PSScriptRoot -ChildPath "Chrome - VERSION_force_update"
-$amazonworkspacedestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "Amazon Workspace - VERSION"
+$destinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming VERSION"
+$forceUpdateFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming VERSION_force_update"
+$amazonworkspacedestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$workspacesNaming VERSION"
 
 # Conditional execution based on config
 if ($config.chrome.options.enableRegularVersion) {
     # Create main folder and files folder if they don't exist
-    $folderName = "Chrome - VERSION"
+    $folderName = "$chromeNaming VERSION"
     $folderPath = Join-Path -Path $PSScriptRoot -ChildPath $folderName
     $filesFolder = Join-Path -Path $folderPath -ChildPath "Files"
 
     if (-not (Test-Path $filesFolder)) {
         try {
             New-Item -Path $filesFolder -ItemType Directory -ErrorAction Stop
-            chrome-Log-Message "Info: Directory creation, 'Chrome - VERSION' and 'Files' folder successfully created in $PSScriptRoot"
+            chrome-Log-Message "Info: Directory creation, '$chromeNaming VERSION' and 'Files' folder successfully created in $PSScriptRoot"
         } catch {
             chrome-Log-Message "Error: Directory creation failed - $_"
         }
@@ -199,7 +202,7 @@ if ($config.chrome.options.enableForcedVersion) {
     if (-not (Test-Path $forceUpdateFolder)) {
         try {
             New-Item -Path $forceUpdateFolder -ItemType Directory -ErrorAction Stop
-            chrome-Log-Message "Info: Directory creation, 'Chrome - VERSION_force_update' successfully created in $PSScriptRoot"
+            chrome-Log-Message "Info: Directory creation, '$chromeNaming VERSION_force_update' successfully created in $PSScriptRoot"
         } catch {
             chrome-Log-Message "Error: Force update directory creation failed - $_"
         }
@@ -242,14 +245,14 @@ if ($config.chrome.options.enableForcedVersion) {
 
 if ($config.amazonWorkspace.options.download) {
 # Create main folder and files folder if they don't exist
-$amazonworkspacefolderName = "Amazon Workspace - VERSION"
+$amazonworkspacefolderName = "$workspacesNaming VERSION"
 $amazonworkspacefolderPath = Join-Path -Path $PSScriptRoot -ChildPath $amazonworkspacefolderName
 $amazonworkspacefilesFolder = Join-Path -Path $amazonworkspacefolderPath -ChildPath "Files"
 
 if (-not (Test-Path $amazonworkspacefilesFolder)) {
     try {
         New-Item -Path $amazonworkspacefilesFolder -ItemType Directory -ErrorAction Stop
-        amazonworkspace-Log-Message "Info: Directory creation, 'Amazon Workspace - VERSION' and 'Files' folder successfully created in $PSScriptRoot"
+        amazonworkspace-Log-Message "Info: Directory creation, '$workspacesNaming VERSION' and 'Files' folder successfully created in $PSScriptRoot"
     } catch {
         amazonworkspace-Log-Message "Error: Directory creation failed - $_"
     }
@@ -277,7 +280,7 @@ try {
 if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.options.folderNumberedVersion) {
 	# Check if the script is running with administrative privileges
 	if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-		if ($config.amazonWorkspace.logging.fileName -eq $config.chrome.logging.fileName) {
+		if ($config.amazonWorkspace.logging.logName -eq $config.chrome.logging.logName) {
             chrome-Log-Message "Error: the config 'folderNumberedVersion' requires administrative privileges to run."
         }
         else {
@@ -287,7 +290,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
 	}
 	else {
 		if ($config.chrome.options.enableRegularVersion -and -not $config.chrome.options.enableForcedVersion) {
-            $msiPath = "$PSScriptRoot\Chrome - VERSION\Files\googlechromestandaloneenterprise64.msi"
+            $msiPath = "$PSScriptRoot\$chromeNaming VERSION\Files\googlechromestandaloneenterprise64.msi"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet" -Wait
             $chromeRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
             $chromeVersion = Get-ChildItem -Path $chromeRegPath |
@@ -296,7 +299,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
                                 Select-Object -ExpandProperty DisplayVersion
             # Rename the folder if the version was retrieved
             if ($chromeVersion) {
-                $newFolderName = "Chrome - $chromeVersion"
+                $newFolderName = "$chromeNaming $chromeVersion"
                 try {
                     Rename-Item -Path $destinationFolder -NewName $newFolderName -ErrorAction Stop
                     chrome-Log-Message "Info: Folder renamed to $newFolderName"
@@ -308,7 +311,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
             }
         }
         elseif ($config.chrome.options.enableForcedVersion -and -not $config.chrome.options.enableRegularVersion) {
-            $msiPath = "$PSScriptRoot\Chrome - VERSION_force_update\googlechromestandaloneenterprise64.msi"
+            $msiPath = "$PSScriptRoot\$chromeNaming VERSION_force_update\googlechromestandaloneenterprise64.msi"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet" -Wait
             $chromeRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
             $chromeVersion = Get-ChildItem -Path $chromeRegPath |
@@ -317,7 +320,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
                                 Select-Object -ExpandProperty DisplayVersion
             # Rename the folder if the version was retrieved
             if ($chromeVersion) {
-                $newFolderName = "Chrome - $chromeVersion" + "_force_update"
+                $newFolderName = "$chromeNaming $chromeVersion" + "_force_update"
                 try {
                     Rename-Item -Path $forceUpdateFolder -NewName $newFolderName -ErrorAction Stop
                     chrome-Log-Message "Info: Folder renamed to $newFolderName"
@@ -329,7 +332,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
             }
         }
         elseif ($config.chrome.options.enableForcedVersion -and $config.chrome.options.enableRegularVersion) {
-            $msiPath = "$PSScriptRoot\Chrome - VERSION_force_update\googlechromestandaloneenterprise64.msi"
+            $msiPath = "$PSScriptRoot\$chromeNaming VERSION_force_update\googlechromestandaloneenterprise64.msi"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet" -Wait
         
             $chromeRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
@@ -341,7 +344,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
             # Rename both folders if the version was retrieved
             if ($chromeVersion) {
                 # Regular version folder
-                $newRegularFolderName = "Chrome - $chromeVersion"
+                $newRegularFolderName = "$chromeNaming $chromeVersion"
                 try {
                     Rename-Item -Path $destinationFolder -NewName $newRegularFolderName -ErrorAction Stop
                     chrome-Log-Message "Info: Folder renamed to $newRegularFolderName"
@@ -350,7 +353,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
                 }
         
                 # Forced version folder
-                $newForcedFolderName = "Chrome - $chromeVersion" + "_force_update"
+                $newForcedFolderName = "$chromeNaming $chromeVersion" + "_force_update"
                 try {
                     Rename-Item -Path $forceUpdateFolder -NewName $newForcedFolderName -ErrorAction Stop
                     chrome-Log-Message "Info: Folder renamed to $newForcedFolderName"
@@ -362,7 +365,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
             }
         }
         if ($config.amazonWorkspace.options.download) {
-        $msiPathamazonworkspace = "$PSScriptRoot\Amazon Workspace - VERSION\Files\Amazon+WorkSpaces.msi"
+        $msiPathamazonworkspace = "$PSScriptRoot\$workspacesNaming VERSION\Files\Amazon+WorkSpaces.msi"
         Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPathamazonworkspace`" /quiet" -Wait
         $workspacesRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
         $workspacesVersion = Get-ChildItem -Path $workspacesRegPath |
@@ -371,7 +374,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
                             Select-Object -ExpandProperty DisplayVersion
         # Rename the folder if the version was retrieved
         if ($workspacesVersion) {
-            $newFolderNameamazonworkspace = "Amazon Workspace - $workspacesVersion"
+            $newFolderNameamazonworkspace = "$workspacesNaming $workspacesVersion"
             try {
                 Rename-Item -Path $amazonworkspacedestinationFolder -NewName $newFolderNameamazonworkspace -ErrorAction Stop
                 amazonworkspace-Log-Message "Info: Folder renamed to $newFolderNameamazonworkspace"
@@ -382,7 +385,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
             amazonworkspace-Log-Message "Warn: Amazon Workspaces version could not be determined. Folder was not renamed."
         }
         }
-        if ($config.amazonWorkspace.logging.fileName -eq $config.chrome.logging.fileName) {
+        if ($config.amazonWorkspace.logging.logName -eq $config.chrome.logging.logName) {
             Write-Output "For additional logs, please refer to $PSScriptRoot\$chromelogFileNameFormat."
         }
         else {
@@ -399,7 +402,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
 	}
 }
 else {
-    if ($config.amazonWorkspace.logging.fileName -eq $config.chrome.logging.fileName) {
+    if ($config.amazonWorkspace.logging.logName -eq $config.chrome.logging.logName) {
         Write-Output "For additional logs, please refer to $PSScriptRoot\$chromelogFileNameFormat."
     }
     else {

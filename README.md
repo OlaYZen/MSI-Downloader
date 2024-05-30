@@ -17,7 +17,8 @@ The `config.json` file should be structured as follows:
       "enableRegularVersion": true,
       "enableForcedVersion": false,
       "folderNumberedVersion": false,
-      "checkExist": false
+      "checkExist": false,
+      "folderName": "Chrome -"
       },
       "logging": {
         "fileName": "google_chrome",
@@ -30,29 +31,44 @@ The `config.json` file should be structured as follows:
     "options": {
       "download": false,
       "folderNumberedVersion": false,
-      "checkExist": false
+      "checkExist": false,
+      "folderName": "WorkSpaces -"
       },
       "logging": {
-        "fileName": "amazon_workspace",
-        "fileFormat": "log",
+        "logName": "amazon_workspaces",
+        "logFormat": "log",
         "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
         "clearLogs": false
       }
   }
 }
 ```
-
+#### Options:
+---
+##### Chrome Specific:
 - `enableRegularVersion`: A boolean flag to enable downloading and installing the regular version of Chrome.
 - `enableForcedVersion`: A boolean flag to enable downloading and installing the forced update version of Chrome.
+
+
+##### WorkSpaces Specific:
+
 - `download`: A boolean flag to enable downloading and installing Amazon Workspaces.
+
+##### Universal:
+
 - `folderNumberedVersion`: A boolean flag to enable the automatic renaming of the folder to the newest version of Chrome. ⚠️ **This option requires administrative privileges when executing the script!** ⚠️
 - `checkExist`: A boolean flag to delete old Chrome folders when the script is executed. ⚠️ **This action will delete your Chrome folders, so ensure you have backups if you wish to retain them.** ⚠️
-- `fileName`: A string defining the name of the log(s) file(s). The default name is `google_chrome` and  `amazon_workspace`.
-- `fileFormat`: A string defining the format of the log(s) file(s). The default format is `log`.
+- `folderName`: A string defining the name of the folders. The default name is `Chrome -` and  `WorkSpaces -`.
+
+#### Logging options:
+---
+- `logName`: A string defining the name of the log(s) file(s). The default name is `google_chrome` and  `amazon_workspace`.
+- `logFormat`: A string defining the format of the log(s) file(s). The default format is `log`.
 - `logDateFormat`: A string defining the format of timestamps in logs. The default format is `dd/MM/yyyy HH:mm:ss`.
 - `clearLogs`: A boolean flag to enable clearing of the log(s) file(s). This will clear the content inside of the log file(s).
 
 ### Date Configuration
+---
 
 ##### `yyyy`: This specifier represents the year portion of the date. It uses four digits to represent the year. For example, 2024.
 
@@ -96,6 +112,7 @@ Output: <code>06.29.2024 15:19:30</code>
 Output: <code>29-06-2024 15:19:30</code>
 
 ### Numbered Version
+---
 `folderNumberedVersion`: Set this to `true` to enable automatic renaming of the folder based on the downloaded Chrome version. This action requires administrative privileges.
 
 For example, if this option is enabled, the folders will be named as follows:

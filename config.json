@@ -4,11 +4,12 @@
       "enableRegularVersion": true,
       "enableForcedVersion": false,
       "folderNumberedVersion": false,
-      "checkExist": false
+      "checkExist": false,
+      "folderName": "Chrome -"
       },
       "logging": {
-        "fileName": "google_chrome",
-        "fileFormat": "log",
+        "logName": "google_chrome",
+        "logFormat": "log",
         "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
         "clearLogs": false
       }
@@ -17,11 +18,12 @@
     "options": {
       "download": false,
       "folderNumberedVersion": false,
-      "checkExist": false
+      "checkExist": false,
+      "folderName": "WorkSpaces -"
       },
       "logging": {
-        "fileName": "amazon_workspace",
-        "fileFormat": "log",
+        "logName": "amazon_workspaces",
+        "logFormat": "log",
         "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
         "clearLogs": false
       }
