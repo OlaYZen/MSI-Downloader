@@ -12,7 +12,7 @@ if (-not $chromedateFormat) {
 $chromelogFileName = $config.chrome.logging.fileName
 $chromelogFileFormat = $config.chrome.logging.fileFormat
 if (-not $chromelogFileName) {
-    $chromelogFileName = "chrome_downloader"
+    $chromelogFileName = "google_chrome"
 }
 if (-not $chromelogFileFormat) {
     $chromelogFileFormat = "log"
