@@ -1,9 +1,9 @@
 {
   "chrome":{
     "options": {
-      "enableRegularVersion": true,
-      "enableForcedVersion": false,
-      "folderNumberedVersion": false,
+      "downloadRegular": true,
+      "downloadForced": false,
+      "folderNumber": false,
       "checkExist": false,
       "folderName": "Chrome -"
       },
@@ -17,7 +17,7 @@
   "amazonWorkspace":{
     "options": {
       "download": false,
-      "folderNumberedVersion": false,
+      "folderNumber": false,
       "checkExist": false,
       "folderName": "WorkSpaces -"
       },

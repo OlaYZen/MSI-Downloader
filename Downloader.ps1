@@ -59,7 +59,7 @@ function chrome-Log-Message {
     param (
         [string]$message
     )
-    if ($config.chrome.options.enableRegularVersion -or $config.chrome.options.enableForcedVersion) {
+    if ($config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced) {
     $timestamp = Get-Date -Format $chromedateFormat
     Write-Output "[$timestamp] - $message" | Out-File -Append -FilePath "$PSScriptRoot\$chromelogFileNameFormat" -Encoding utf8
     }
@@ -76,7 +76,7 @@ function amazonworkspace-Log-Message {
 }
 
 # Check if both options are disabled and log a message
-if (-not $config.chrome.options.enableRegularVersion -and -not $config.chrome.options.enableForcedVersion -and -not $config.amazonWorkspace.options.download) {
+if (-not $config.chrome.options.downloadRegular -and -not $config.chrome.options.downloadForced -and -not $config.amazonWorkspace.options.download) {
     chrome-Log-Message "Warn: Neither Chrome or Amazon Workspaces is selected. Please enable at least one option to proceed."
     exit
 }
@@ -86,10 +86,10 @@ if ($config.amazonWorkspace.logging.logName -eq $config.chrome.logging.logName) 
     chrome-Log-Message "Debug: Script started"
 }
 else {
-    if ($config.chrome.options.enableRegularVersion) {
+    if ($config.chrome.options.downloadRegular) {
         chrome-Log-Message "Debug: Script started"
     }
-    elseif ($config.chrome.options.enableForcedVersion) {
+    elseif ($config.chrome.options.downloadForced) {
         chrome-Log-Message "Debug: Script started"
     }
     if ($config.amazonWorkspace.options.download) {
@@ -153,7 +153,7 @@ $forceUpdateFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming VER
 $amazonworkspacedestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$workspacesNaming VERSION"
 
 # Conditional execution based on config
-if ($config.chrome.options.enableRegularVersion) {
+if ($config.chrome.options.downloadRegular) {
     # Create main folder and files folder if they don't exist
     $folderName = "$chromeNaming VERSION"
     $folderPath = Join-Path -Path $PSScriptRoot -ChildPath $folderName
@@ -197,7 +197,7 @@ if ($config.chrome.options.enableRegularVersion) {
     }
 }
 
-if ($config.chrome.options.enableForcedVersion) {
+if ($config.chrome.options.downloadForced) {
     # Create force update folder if it doesn't exist
     if (-not (Test-Path $forceUpdateFolder)) {
         try {
@@ -217,7 +217,7 @@ if ($config.chrome.options.enableForcedVersion) {
     }
 
     # If the regular version is not enabled, download 64-bit Chrome installer directly to the force update folder
-    if (-not $config.chrome.options.enableRegularVersion) {
+    if (-not $config.chrome.options.downloadRegular) {
         $fileName1 = [System.IO.Path]::GetFileName($chrome64BitUrl)
         $filePath1 = Join-Path -Path $forceUpdateFolder -ChildPath $fileName1
         try {
@@ -277,19 +277,19 @@ try {
 }
 }
 
-if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.options.folderNumberedVersion) {
+if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.folderNumber) {
 	# Check if the script is running with administrative privileges
 	if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
 		if ($config.amazonWorkspace.logging.logName -eq $config.chrome.logging.logName) {
-            chrome-Log-Message "Error: the config 'folderNumberedVersion' requires administrative privileges to run."
+            chrome-Log-Message "Error: the config 'folderNumber' requires administrative privileges to run."
         }
         else {
-            chrome-Log-Message "Error: the config 'folderNumberedVersion' requires administrative privileges to run."
-            amazonworkspace-Log-Message "Error: the config 'folderNumberedVersion' requires administrative privileges to run."
+            chrome-Log-Message "Error: the config 'folderNumber' requires administrative privileges to run."
+            amazonworkspace-Log-Message "Error: the config 'folderNumber' requires administrative privileges to run."
         }
 	}
 	else {
-		if ($config.chrome.options.enableRegularVersion -and -not $config.chrome.options.enableForcedVersion) {
+		if ($config.chrome.options.downloadRegular -and -not $config.chrome.options.downloadForced) {
             $msiPath = "$PSScriptRoot\$chromeNaming VERSION\Files\googlechromestandaloneenterprise64.msi"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet" -Wait
             $chromeRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
@@ -310,7 +310,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
                 chrome-Log-Message "Warn: Chrome version could not be determined. Folder was not renamed."
             }
         }
-        elseif ($config.chrome.options.enableForcedVersion -and -not $config.chrome.options.enableRegularVersion) {
+        elseif ($config.chrome.options.downloadForced -and -not $config.chrome.options.downloadRegular) {
             $msiPath = "$PSScriptRoot\$chromeNaming VERSION_force_update\googlechromestandaloneenterprise64.msi"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet" -Wait
             $chromeRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
@@ -331,7 +331,7 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
                 chrome-Log-Message "Warn: Chrome version could not be determined. Folder was not renamed."
             }
         }
-        elseif ($config.chrome.options.enableForcedVersion -and $config.chrome.options.enableRegularVersion) {
+        elseif ($config.chrome.options.downloadForced -and $config.chrome.options.downloadRegular) {
             $msiPath = "$PSScriptRoot\$chromeNaming VERSION_force_update\googlechromestandaloneenterprise64.msi"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet" -Wait
         
@@ -389,10 +389,10 @@ if ($config.chrome.options.folderNumberedVersion -or $config.amazonWorkspace.opt
             Write-Output "For additional logs, please refer to $PSScriptRoot\$chromelogFileNameFormat."
         }
         else {
-            if ($config.chrome.options.enableRegularVersion) {
+            if ($config.chrome.options.downloadRegular) {
                 Write-Output "For additional logs, please refer to $PSScriptRoot\$chromelogFileNameFormat."
             }
-            elseif ($config.chrome.options.enableForcedVersion) {
+            elseif ($config.chrome.options.downloadForced) {
                 Write-Output "For additional logs, please refer to $PSScriptRoot\$chromelogFileNameFormat."
             }
             if ($config.amazonWorkspace.options.download) {
@@ -406,10 +406,10 @@ else {
         Write-Output "For additional logs, please refer to $PSScriptRoot\$chromelogFileNameFormat."
     }
     else {
-        if ($config.chrome.options.enableRegularVersion) {
+        if ($config.chrome.options.downloadRegular) {
             Write-Output "For additional logs, please refer to $PSScriptRoot\$chromelogFileNameFormat."
         }
-        elseif ($config.chrome.options.enableForcedVersion) {
+        elseif ($config.chrome.options.downloadForced) {
             Write-Output "For additional logs, please refer to $PSScriptRoot\$chromelogFileNameFormat."
         }
         if ($config.amazonWorkspace.options.download) {

@@ -14,9 +14,9 @@ The `config.json` file should be structured as follows:
 {
   "chrome":{
     "options": {
-      "enableRegularVersion": true,
-      "enableForcedVersion": false,
-      "folderNumberedVersion": false,
+      "downloadRegular": true,
+      "downloadForced": false,
+      "folderNumber": false,
       "checkExist": false,
       "folderName": "Chrome -"
       },
@@ -30,7 +30,7 @@ The `config.json` file should be structured as follows:
   "amazonWorkspace":{
     "options": {
       "download": false,
-      "folderNumberedVersion": false,
+      "folderNumber": false,
       "checkExist": false,
       "folderName": "WorkSpaces -"
       },
@@ -46,8 +46,8 @@ The `config.json` file should be structured as follows:
 #### Options:
 ---
 ##### Chrome Specific:
-- `enableRegularVersion`: A boolean flag to enable downloading and installing the regular version of Chrome.
-- `enableForcedVersion`: A boolean flag to enable downloading and installing the forced update version of Chrome.
+- `downloadRegular`: A boolean flag to enable downloading and installing the regular version of Chrome.
+- `downloadForced`: A boolean flag to enable downloading and installing the forced update version of Chrome.
 
 
 ##### WorkSpaces Specific:
@@ -56,13 +56,13 @@ The `config.json` file should be structured as follows:
 
 ##### Universal:
 
-- `folderNumberedVersion`: A boolean flag to enable the automatic renaming of the folder to the newest version of Chrome. ⚠️ **This option requires administrative privileges when executing the script!** ⚠️
+- `folderNumber`: A boolean flag to enable the automatic renaming of the folder to the newest version of Chrome. ⚠️ **This option requires administrative privileges when executing the script!** ⚠️
 - `checkExist`: A boolean flag to delete old Chrome folders when the script is executed. ⚠️ **This action will delete your Chrome folders, so ensure you have backups if you wish to retain them.** ⚠️
 - `folderName`: A string defining the name of the folders. The default name is `Chrome -` and  `WorkSpaces -`.
 
 #### Logging options:
 ---
-- `logName`: A string defining the name of the log(s) file(s). The default name is `google_chrome` and  `amazon_workspace`.
+- `logName`: A string defining the name of the log(s) file(s). The default name is `google_chrome` and  `amazon_workspaces`.
 - `logFormat`: A string defining the format of the log(s) file(s). The default format is `log`.
 - `logDateFormat`: A string defining the format of timestamps in logs. The default format is `dd/MM/yyyy HH:mm:ss`.
 - `clearLogs`: A boolean flag to enable clearing of the log(s) file(s). This will clear the content inside of the log file(s).
@@ -113,7 +113,7 @@ Output: <code>29-06-2024 15:19:30</code>
 
 ### Numbered Version
 ---
-`folderNumberedVersion`: Set this to `true` to enable automatic renaming of the folder based on the downloaded Chrome version. This action requires administrative privileges.
+`folderNumber`: Set this to `true` to enable automatic renaming of the folder based on the downloaded Chrome version. This action requires administrative privileges.
 
 For example, if this option is enabled, the folders will be named as follows:
 
@@ -127,7 +127,7 @@ Chrome - VERSION_force_update
 Chrome - 125.0.6422.113_force_update
 ```
 
-The `folderNumberedVersion` configuration requires administrative privileges because the only way to obtain the Chrome version number is by installing the MSI file and retrieving the version from the Windows registry.
+The `folderNumber` configuration requires administrative privileges because the only way to obtain the Chrome version number is by installing the MSI file and retrieving the version from the Windows registry.
 
 ## Script Usage
 ### 1. Prepare the Environment:
@@ -161,4 +161,4 @@ This command will clone the repository into your current directory.
 
 ### 4. Monitor the Logs:
 
-- Check `google_chrome.log` or `amazon_workspace.log` in the script directory for detailed logs of the execution process, including any errors encountered.
+- Check `google_chrome.log` or `amazon_workspaces.log` in the script directory for detailed logs of the execution process, including any errors encountered.
