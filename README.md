@@ -22,7 +22,8 @@ The `config.json` file should be structured as follows:
       "logging": {
         "fileName": "google_chrome",
         "fileFormat": "log",
-        "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss"
+        "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
+        "clearLogs": false
       }
   },
   "amazonWorkspace":{
@@ -34,7 +35,8 @@ The `config.json` file should be structured as follows:
       "logging": {
         "fileName": "amazon_workspace",
         "fileFormat": "log",
-        "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss"
+        "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
+        "clearLogs": false
       }
   }
 }
@@ -45,10 +47,10 @@ The `config.json` file should be structured as follows:
 - `download`: A boolean flag to enable downloading and installing Amazon Workspaces.
 - `folderNumberedVersion`: A boolean flag to enable the automatic renaming of the folder to the newest version of Chrome. ⚠️ **This option requires administrative privileges when executing the script!** ⚠️
 - `checkExist`: A boolean flag to delete old Chrome folders when the script is executed. ⚠️ **This action will delete your Chrome folders, so ensure you have backups if you wish to retain them.** ⚠️
-- `fileName`: A string defining the name of the log file. The default name is `google_chrome` and  `amazon_workspace`.
-- `fileFormat`: A string defining the format of the log file. The default format is `log`.
+- `fileName`: A string defining the name of the log(s) file(s). The default name is `google_chrome` and  `amazon_workspace`.
+- `fileFormat`: A string defining the format of the log(s) file(s). The default format is `log`.
 - `logDateFormat`: A string defining the format of timestamps in logs. The default format is `dd/MM/yyyy HH:mm:ss`.
-
+- `clearLogs`: A boolean flag to enable clearing of the log(s) file(s). This will clear the content inside of the log file(s).
 
 ### Date Configuration
 

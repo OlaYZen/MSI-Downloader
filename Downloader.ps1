@@ -38,6 +38,20 @@ if (-not $amazonworkspacelogFileFormat) {
 
 $amazonworkspacelogFileNameFormat = $amazonworkspacelogFileName+"."+$amazonworkspacelogFileFormat
 
+if ($config.chrome.logging.clearLogs) {
+    # Construct the full path to the log file
+    $logFilePathchrome = Join-Path -Path $PSScriptRoot -ChildPath $chromelogFileNameFormat
+    # Clear the contents of the log file
+    Set-Content -Path $logFilePathchrome -Value ''
+}
+
+if ($config.amazonWorkspace.logging.clearLogs) {
+    # Construct the full path to the log file
+    $logFilePathworkspaces = Join-Path -Path $PSScriptRoot -ChildPath $amazonworkspacelogFileNameFormat
+    # Clear the contents of the log file
+    Set-Content -Path $logFilePathworkspaces -Value ''
+}
+
 function chrome-Log-Message {
     param (
         [string]$message
@@ -93,9 +107,9 @@ if ($config.chrome.options.checkExist) {
         Remove-Item $testPath -Recurse -Force
     }
     
-    # Output the subfolders
+    # Output the folders
     foreach ($subfolder in $subfolders) {
-        chrome-Log-Message "Info: The subfolder '$subfolder\' has been deleted."
+        chrome-Log-Message "Info: The folder '$subfolder\' has been deleted."
     }
 }
 if ($config.amazonWorkspace.options.checkExist) {
@@ -111,10 +125,10 @@ if ($config.amazonWorkspace.options.checkExist) {
         Remove-Item $amazonworkspacetestPath -Recurse -Force
     }
     
-    # Output the subfolders
+    # Output the folders
     foreach ($amazonworkspacesubfolder in $amazonworkspacesubfolders) {
         try {
-            amazonworkspace-Log-Message "Info: The subfolder '$amazonworkspacesubfolder\' has been deleted."
+            amazonworkspace-Log-Message "Info: The folder '$amazonworkspacesubfolder\' has been deleted."
         } catch {
             Write-Host "Error logging message: $_"
         }
