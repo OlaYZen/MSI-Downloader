@@ -22,7 +22,7 @@ The `config.json` file should be structured as follows:
       "logging": {
         "fileName": "google_chrome",
         "fileFormat": "log",
-        "logDateFormat": "dd/MM/yyyy HH:mm:ss"
+        "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss"
       }
   },
   "amazonWorkspace":{
@@ -34,7 +34,7 @@ The `config.json` file should be structured as follows:
       "logging": {
         "fileName": "amazon_workspace",
         "fileFormat": "log",
-        "logDateFormat": "dd/MM/yyyy HH:mm:ss"
+        "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss"
       }
   }
 }
