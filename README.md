@@ -21,10 +21,14 @@ The `config.json` file should be structured as follows:
       "folderName": "Chrome -"
       },
       "logging": {
-        "fileName": "google_chrome",
-        "fileFormat": "log",
+        "logName": "google_chrome",
+        "logFormat": "log",
         "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
         "clearLogs": false
+      },
+      "template": {
+        "templateFolderNameRegular": "Chrome-Template",
+        "templateFolderNameForced": "Chrome-Template-Forced"
       }
   },
   "amazonWorkspace":{
@@ -39,8 +43,13 @@ The `config.json` file should be structured as follows:
         "logFormat": "log",
         "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
         "clearLogs": false
+      },
+      "template": {
+        "templateFolderName": "Amazon-Workspace-Template"
       }
-  }
+  },
+  "license": true,
+  "debug": false
 }
 ```
 #### Options:
@@ -59,6 +68,8 @@ The `config.json` file should be structured as follows:
 - `folderNumber`: A boolean flag to enable the automatic renaming of the folder to the newest version of Chrome. ⚠️ **This option requires administrative privileges when executing the script!** ⚠️
 - `checkExist`: A boolean flag to delete old Chrome folders when the script is executed. ⚠️ **This action will delete your Chrome folders, so ensure you have backups if you wish to retain them.** ⚠️
 - `folderName`: A string defining the name of the folders. The default name is `Chrome -` and  `WorkSpaces -`.
+- `license`: A boolean flag to enable/disable the MIT license showing on script start.
+- `debug`: A boolean flag to enable/disable debugging in the logs.
 
 #### Logging options:
 ---
@@ -66,6 +77,12 @@ The `config.json` file should be structured as follows:
 - `logFormat`: A string defining the format of the log(s) file(s). The default format is `log`.
 - `logDateFormat`: A string defining the format of timestamps in logs. The default format is `dd/MM/yyyy HH:mm:ss`.
 - `clearLogs`: A boolean flag to enable clearing of the log(s) file(s). This will clear the content inside of the log file(s).
+
+#### Template options:
+---
+- `templateFolderNameRegular`: A string defining the name of the regular GoogleChrome template folder name.
+- `templateFolderNameForced`: A string defining the name of the forced Google Chrome template folder name.
+- `templateFolderName`: A string defining the name of Amazon WorkSpaces template folder name.
 
 ### Date Configuration
 ---
@@ -91,6 +108,8 @@ The `config.json` file should be structured as follows:
 ##### `mm`: This specifier represents the minute portion of the time. It uses two digits to represent the minutes, with leading zeros if necessary. For example, 30.
 
 ##### `ss`: This specifier represents the second portion of the time. It uses two digits to represent the seconds, with leading zeros if necessary. For example, 45.
+
+##### `fff`: This specifier represents the millisecond portion of the time. It uses three digits to represent the milliseconds, with leading zeros if necessary. For example, 123.
 
 ##### `tt`: This specifier represents the AM/PM designator in a 12-hour time format. It is typically used alongside the hh specifier to indicate whether the time is in the AM or PM. For example, AM or PM.
 

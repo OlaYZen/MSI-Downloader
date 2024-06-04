@@ -1,6 +1,46 @@
-﻿# Read configuration from JSON file
+﻿# Writes out OlaYZen's Name
+
+write-host "|============================================|"
+write-host "|=------------------------------------------=|"
+write-host "|============================================|"
+write-host "|                                            |"
+write-host "|                                            |"
+write-host "| YYYY             YYYYZZZZZZZZZZZZZZZZZZZZZ |"
+write-host "|  Y::Y           Y::::::::::::::::::::::::Z |"
+write-host "|   Y::Y         Y::YZZZZZZZZZZZZZZZZZZZ:::Z |"
+write-host "|    Y::Y       Y::Y                 Z:::Z   |"
+write-host "|     Y:::Y   Y:::Y                 Z:::Z    |"
+write-host "|      Y:::Y Y:::Y                 Z:::Z     |"
+write-host "|       Y:::Y:::Y                 Z:::Z      |"
+write-host "|        Y:::::Y                Z:::Z        |"
+write-host "|         Y:::Y                Z:::Z         |"
+write-host "|         Y:::Y               Z:::Z          |"
+write-host "|         Y:::Y             Z:::Z            |"
+write-host "|         Y:::Y            Z:::Z             |"
+write-host "|         Y:::Y           Z:::Z              |"
+write-host "|         Y:::Y         Z:::ZZZZZZZZZZZZZZZZ |"
+write-host "|         Y:::Y        Z:::::::::::::::::::Z |"
+write-host "|         YYYYY        ZZZZZZZZZZZZZZZZZZZZZ |"
+write-host "|                                            |"
+write-host "|                                            |"
+write-host "|============================================|"
+write-host "|=------------------------------------------=|"
+write-host "|=              made by OlaYZen             =|"
+write-host "|=------------------------------------------=|"
+write-host "|============================================|"
+write-host "                                              "
+
+# Read configuration from JSON file
 $configPath = "$PSScriptRoot\config.json"
 $config = Get-Content -Path $configPath | ConvertFrom-Json
+
+if($config.license){
+    # Writes out the license to the end user
+    $copyrightUrl = "https://forgejo.olayzen.com/OlaYZen/MSI-Downloader/raw/branch/main/LICENSE"
+    $copyrightResponse = Invoke-WebRequest -Uri $copyrightUrl
+    $copyrightContent = $copyrightResponse.Content
+    Write-Host $copyrightContent
+}
 
 $chromeNaming = $config.chrome.options.folderName
 $workspacesNaming = $config.amazonWorkspace.options.folderName
@@ -41,6 +81,11 @@ if (-not $amazonworkspacelogFileFormat) {
 
 $amazonworkspacelogFileNameFormat = $amazonworkspacelogFileName+"."+$amazonworkspacelogFileFormat
 
+# Define template name
+$ctRegular = $config.chrome.template.templateFolderNameRegular
+$ctForced = $config.chrome.template.templateFolderNameForced
+$wt = $config.amazonWorkspace.template.templateFolderName
+
 if ($config.chrome.logging.clearLogs) {
     # Construct the full path to the log file
     $logFilePathchrome = Join-Path -Path $PSScriptRoot -ChildPath $chromelogFileNameFormat
@@ -75,6 +120,122 @@ function amazonworkspace-Log-Message {
     }
 }
 
+if (-not $ctRegular) {
+    $ctRegular = "Chrome-Template"
+}
+
+if (-not $ctForced) {
+    $ctForced = "Chrome-Template-Forced"
+}
+
+if (-not $wt) {
+    $wt = "Amazon-Workspace-Template"
+}
+
+if ($config.debug){
+    if($config.chrome.logging.logName -eq $config.amazonWorkspace.logging.logName){
+        if($config.chrome.logging.logFormat -eq $config.amazonWorkspace.logging.logFormat){
+            chrome-Log-Message "Debug: |============================================|"
+            chrome-Log-Message "Debug: |=------------------------------------------=|"
+            chrome-Log-Message "Debug: |============================================|"
+            chrome-Log-Message "Debug: |                                            |"
+            chrome-Log-Message "Debug: |                                            |"
+            chrome-Log-Message "Debug: | YYYY             YYYYZZZZZZZZZZZZZZZZZZZZZ |"
+            chrome-Log-Message "Debug: |  Y::Y           Y::::::::::::::::::::::::Z |"
+            chrome-Log-Message "Debug: |   Y::Y         Y::YZZZZZZZZZZZZZZZZZZZ:::Z |"
+            chrome-Log-Message "Debug: |    Y::Y       Y::Y                 Z:::Z   |"
+            chrome-Log-Message "Debug: |     Y:::Y   Y:::Y                 Z:::Z    |"
+            chrome-Log-Message "Debug: |      Y:::Y Y:::Y                 Z:::Z     |"
+            chrome-Log-Message "Debug: |       Y:::Y:::Y                 Z:::Z      |"
+            chrome-Log-Message "Debug: |        Y:::::Y                Z:::Z        |"
+            chrome-Log-Message "Debug: |         Y:::Y                Z:::Z         |"
+            chrome-Log-Message "Debug: |         Y:::Y               Z:::Z          |"
+            chrome-Log-Message "Debug: |         Y:::Y             Z:::Z            |"
+            chrome-Log-Message "Debug: |         Y:::Y            Z:::Z             |"
+            chrome-Log-Message "Debug: |         Y:::Y           Z:::Z              |"
+            chrome-Log-Message "Debug: |         Y:::Y         Z:::ZZZZZZZZZZZZZZZZ |"
+            chrome-Log-Message "Debug: |         Y:::Y        Z:::::::::::::::::::Z |"
+            chrome-Log-Message "Debug: |         YYYYY        ZZZZZZZZZZZZZZZZZZZZZ |"
+            chrome-Log-Message "Debug: |                                            |"
+            chrome-Log-Message "Debug: |                                            |"
+            chrome-Log-Message "Debug: |============================================|"
+            chrome-Log-Message "Debug: |=------------------------------------------=|"
+            chrome-Log-Message "Debug: |=              made by OlaYZen             =|"
+            chrome-Log-Message "Debug: |=------------------------------------------=|"
+            chrome-Log-Message "Debug: |============================================|"
+
+            chrome-Log-Message "Debug: Log files share the same name '$chromelogFileNameFormat'"
+        }
+    } else {
+        chrome-Log-Message "Debug: |============================================|"
+        chrome-Log-Message "Debug: |=------------------------------------------=|"
+        chrome-Log-Message "Debug: |============================================|"
+        chrome-Log-Message "Debug: |                                            |"
+        chrome-Log-Message "Debug: |                                            |"
+        chrome-Log-Message "Debug: | YYYY             YYYYZZZZZZZZZZZZZZZZZZZZZ |"
+        chrome-Log-Message "Debug: |  Y::Y           Y::::::::::::::::::::::::Z |"
+        chrome-Log-Message "Debug: |   Y::Y         Y::YZZZZZZZZZZZZZZZZZZZ:::Z |"
+        chrome-Log-Message "Debug: |    Y::Y       Y::Y                 Z:::Z   |"
+        chrome-Log-Message "Debug: |     Y:::Y   Y:::Y                 Z:::Z    |"
+        chrome-Log-Message "Debug: |      Y:::Y Y:::Y                 Z:::Z     |"
+        chrome-Log-Message "Debug: |       Y:::Y:::Y                 Z:::Z      |"
+        chrome-Log-Message "Debug: |        Y:::::Y                Z:::Z        |"
+        chrome-Log-Message "Debug: |         Y:::Y                Z:::Z         |"
+        chrome-Log-Message "Debug: |         Y:::Y               Z:::Z          |"
+        chrome-Log-Message "Debug: |         Y:::Y             Z:::Z            |"
+        chrome-Log-Message "Debug: |         Y:::Y            Z:::Z             |"
+        chrome-Log-Message "Debug: |         Y:::Y           Z:::Z              |"
+        chrome-Log-Message "Debug: |         Y:::Y         Z:::ZZZZZZZZZZZZZZZZ |"
+        chrome-Log-Message "Debug: |         Y:::Y        Z:::::::::::::::::::Z |"
+        chrome-Log-Message "Debug: |         YYYYY        ZZZZZZZZZZZZZZZZZZZZZ |"
+        chrome-Log-Message "Debug: |                                            |"
+        chrome-Log-Message "Debug: |                                            |"
+        chrome-Log-Message "Debug: |============================================|"
+        chrome-Log-Message "Debug: |=------------------------------------------=|"
+        chrome-Log-Message "Debug: |=              made by OlaYZen             =|"
+        chrome-Log-Message "Debug: |=------------------------------------------=|"
+        chrome-Log-Message "Debug: |============================================|"
+        amazonworkspace-Log-Message "Debug: |============================================|"
+        amazonworkspace-Log-Message "Debug: |=------------------------------------------=|"
+        amazonworkspace-Log-Message "Debug: |============================================|"
+        amazonworkspace-Log-Message "Debug: |                                            |"
+        amazonworkspace-Log-Message "Debug: |                                            |"
+        amazonworkspace-Log-Message "Debug: | YYYY             YYYYZZZZZZZZZZZZZZZZZZZZZ |"
+        amazonworkspace-Log-Message "Debug: |  Y::Y           Y::::::::::::::::::::::::Z |"
+        amazonworkspace-Log-Message "Debug: |   Y::Y         Y::YZZZZZZZZZZZZZZZZZZZ:::Z |"
+        amazonworkspace-Log-Message "Debug: |    Y::Y       Y::Y                 Z:::Z   |"
+        amazonworkspace-Log-Message "Debug: |     Y:::Y   Y:::Y                 Z:::Z    |"
+        amazonworkspace-Log-Message "Debug: |      Y:::Y Y:::Y                 Z:::Z     |"
+        amazonworkspace-Log-Message "Debug: |       Y:::Y:::Y                 Z:::Z      |"
+        amazonworkspace-Log-Message "Debug: |        Y:::::Y                Z:::Z        |"
+        amazonworkspace-Log-Message "Debug: |         Y:::Y                Z:::Z         |"
+        amazonworkspace-Log-Message "Debug: |         Y:::Y               Z:::Z          |"
+        amazonworkspace-Log-Message "Debug: |         Y:::Y             Z:::Z            |"
+        amazonworkspace-Log-Message "Debug: |         Y:::Y            Z:::Z             |"
+        amazonworkspace-Log-Message "Debug: |         Y:::Y           Z:::Z              |"
+        amazonworkspace-Log-Message "Debug: |         Y:::Y         Z:::ZZZZZZZZZZZZZZZZ |"
+        amazonworkspace-Log-Message "Debug: |         Y:::Y        Z:::::::::::::::::::Z |"
+        amazonworkspace-Log-Message "Debug: |         YYYYY        ZZZZZZZZZZZZZZZZZZZZZ |"
+        amazonworkspace-Log-Message "Debug: |                                            |"
+        amazonworkspace-Log-Message "Debug: |                                            |"
+        amazonworkspace-Log-Message "Debug: |============================================|"
+        amazonworkspace-Log-Message "Debug: |=------------------------------------------=|"
+        amazonworkspace-Log-Message "Debug: |=              made by OlaYZen             =|"
+        amazonworkspace-Log-Message "Debug: |=------------------------------------------=|"
+        amazonworkspace-Log-Message "Debug: |============================================|"
+    }
+
+
+chrome-Log-Message "Debug: ctRegular set to '$ctRegular'"
+chrome-Log-Message "Debug: ctForced set to '$ctForced'"
+amazonworkspace-Log-Message "Debug: wt set to '$wt'"
+
+chrome-Log-Message "Debug: folderName set to '$chromeNaming'"
+amazonworkspace-Log-Message "Debug: folderName set to '$workspacesNaming'"
+
+
+}
+
 # Check if both options are disabled and log a message
 if (-not $config.chrome.options.downloadRegular -and -not $config.chrome.options.downloadForced -and -not $config.amazonWorkspace.options.download) {
     chrome-Log-Message "Warn: Neither Chrome or Amazon Workspaces is selected. Please enable at least one option to proceed."
@@ -83,17 +244,17 @@ if (-not $config.chrome.options.downloadRegular -and -not $config.chrome.options
 
 # Log the start of the script
 if ($config.amazonWorkspace.logging.logName -eq $config.chrome.logging.logName) {
-    chrome-Log-Message "Debug: Script started"
+    chrome-Log-Message "Info: Script started"
 }
 else {
     if ($config.chrome.options.downloadRegular) {
-        chrome-Log-Message "Debug: Script started"
+        chrome-Log-Message "Info: Script started"
     }
     elseif ($config.chrome.options.downloadForced) {
-        chrome-Log-Message "Debug: Script started"
+        chrome-Log-Message "Info: Script started"
     }
     if ($config.amazonWorkspace.options.download) {
-        amazonworkspace-Log-Message "Debug: Script started"
+        amazonworkspace-Log-Message "Info: Script started"
     }
 }
 
@@ -144,9 +305,9 @@ $chrome32BitUrl = "https://dl.google.com/dl/chrome/install/googlechromestandalon
 $amazonworkspace64BitUrl = "https://d2td7dqidlhjx7.cloudfront.net/prod/global/windows/Amazon+WorkSpaces.msi"
 
 # Define source and destination folders
-$sourceFolderRegular = "$PSScriptRoot\Template\Chrome-Template"
-$sourceFolderForced = "$PSScriptRoot\Template\Chrome-Template-Forced"
-$amazonworkspacesourceFolderRegular = "$PSScriptRoot\Template\Amazon-Workspace-Template"
+$sourceFolderRegular = "$PSScriptRoot\Template\$ctRegular"
+$sourceFolderForced = "$PSScriptRoot\Template\$ctForced"
+$amazonworkspacesourceFolderRegular = "$PSScriptRoot\Template\$wt"
 
 $destinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming VERSION"
 $forceUpdateFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming VERSION_force_update"

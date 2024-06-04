@@ -12,6 +12,10 @@
         "logFormat": "log",
         "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
         "clearLogs": false
+      },
+      "template": {
+        "templateFolderNameRegular": "Chrome-Template",
+        "templateFolderNameForced": "Chrome-Template-Forced"
       }
   },
   "amazonWorkspace":{
@@ -26,6 +30,11 @@
         "logFormat": "log",
         "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
         "clearLogs": false
+      },
+      "template": {
+        "templateFolderName": "Amazon-Workspace-Template"
       }
-  }
+  },
+  "license": true,
+  "debug": false
 }
