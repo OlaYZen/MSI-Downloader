@@ -5,7 +5,11 @@
       "downloadForced": false,
       "folderNumber": false,
       "checkExist": false,
-      "folderName": "Chrome -"
+      "folderName": "Chrome -",
+      "bothPrefix": "VERSION",
+      "forcedSuffix": "_force_update",
+      "spesificChromeURL64": "",
+      "spesificChromeURL32": ""
       },
       "logging": {
         "logName": "google_chrome",
@@ -23,7 +27,9 @@
       "download": false,
       "folderNumber": false,
       "checkExist": false,
-      "folderName": "WorkSpaces -"
+      "folderName": "WorkSpaces -",
+      "amazonPrefix": "VERSION",
+      "spesificAmazonURL": ""
       },
       "logging": {
         "logName": "amazon_workspaces",

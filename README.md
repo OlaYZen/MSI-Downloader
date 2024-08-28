@@ -18,7 +18,11 @@ The `config.json` file should be structured as follows:
       "downloadForced": false,
       "folderNumber": false,
       "checkExist": false,
-      "folderName": "Chrome -"
+      "folderName": "Chrome -",
+      "bothPrefix": "VERSION",
+      "forcedSuffix": "_force_update",
+      "spesificChromeURL64": "",
+      "spesificChromeURL32": ""
       },
       "logging": {
         "logName": "google_chrome",
@@ -36,7 +40,9 @@ The `config.json` file should be structured as follows:
       "download": false,
       "folderNumber": false,
       "checkExist": false,
-      "folderName": "WorkSpaces -"
+      "folderName": "WorkSpaces -",
+      "AmazonPrefix": "VERSION",
+      "spesificAmazonURL": ""
       },
       "logging": {
         "logName": "amazon_workspaces",
@@ -57,11 +63,16 @@ The `config.json` file should be structured as follows:
 ##### Chrome Specific:
 - `downloadRegular`: A boolean flag to enable downloading and installing the regular version of Chrome.
 - `downloadForced`: A boolean flag to enable downloading and installing the forced update version of Chrome.
-
+- `bothPrefix`: A String defining the prefix for both the regular and forced update versions of Chrome. The default prefix is `VERSION`.
+- `forcedSuffix`: A string defining the suffix for the forced update version of Chrome. The default suffix is `_force_update`.
+- `spesificChromeURL64`: A string defining custom URL for the 64-bit version of Chrome. Leave empty to use the default URL.
+- `spesificChromeURL32`: A string defining custom URL for the 32-bit version of Chrome. Leave empty to use the default URL.
 
 ##### WorkSpaces Specific:
 
 - `download`: A boolean flag to enable downloading and installing Amazon Workspaces.
+- `AmazonPrefix`: A String defining the prefix for the Amazon Workspaces version. The default prefix is `VERSION`.
+- `spesificAmazonURL`: A string defining custom URL for the Amazon Workspaces version. Leave empty to use the default URL.
 
 ##### Universal:
 

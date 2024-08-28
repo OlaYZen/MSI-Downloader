@@ -86,6 +86,11 @@ $ctRegular = $config.chrome.template.templateFolderNameRegular
 $ctForced = $config.chrome.template.templateFolderNameForced
 $wt = $config.amazonWorkspace.template.templateFolderName
 
+# Define prefix and suffix
+$bp = $config.chrome.options.bothPrefix
+$fs = $config.chrome.options.forcedSuffix
+$ap = $config.amazonWorkspace.options.amazonPrefix
+
 if ($config.chrome.logging.clearLogs) {
     # Construct the full path to the log file
     $logFilePathchrome = Join-Path -Path $PSScriptRoot -ChildPath $chromelogFileNameFormat
@@ -130,6 +135,18 @@ if (-not $ctForced) {
 
 if (-not $wt) {
     $wt = "Amazon-Workspace-Template"
+}
+
+if (-not $bp) {
+    $bp = "VERSION"
+}
+
+if (-not $ap) {
+    $ap = "VERSION"
+}
+
+if (-not $fs) {
+    $fs = "_force_update"
 }
 
 if ($config.debug){
@@ -300,30 +317,52 @@ if ($config.amazonWorkspace.options.checkExist) {
 }
 
 # Define URLs
-$chrome64BitUrl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
-$chrome32BitUrl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise.msi"
-$amazonworkspace64BitUrl = "https://d2td7dqidlhjx7.cloudfront.net/prod/global/windows/Amazon+WorkSpaces.msi"
+# Chrome 64-bit URL
+if ($config.chrome.options.spesificChromeURL64 -eq "") {
+   $chrome64BitUrl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
+}
+else {
+    $chrome64BitUrl = $config.chrome.options.spesificChromeURL64
+}
+
+# Chrome 32-bit URL
+if ($config.chrome.options.spesificChromeURL32 -eq "") {
+    $chrome32BitUrl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise.msi"
+}
+else {
+    $chrome32BitUrl = $config.chrome.options.spesificChromeURL32
+}
+
+# AmazonWorkspaces URL
+if ($config.amazonWorkspace.options.spesificAmazonURL -eq "") {
+    $amazonworkspace64BitUrl = "https://d2td7dqidlhjx7.cloudfront.net/prod/global/windows/Amazon+WorkSpaces.msi"
+}
+else {
+     $amazonworkspace64BitUrl = $config.amazonWorkspace.options.spesificAmazonURL
+}
+ 
+
 
 # Define source and destination folders
 $sourceFolderRegular = "$PSScriptRoot\Template\$ctRegular"
 $sourceFolderForced = "$PSScriptRoot\Template\$ctForced"
 $amazonworkspacesourceFolderRegular = "$PSScriptRoot\Template\$wt"
 
-$destinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming VERSION"
-$forceUpdateFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming VERSION_force_update"
-$amazonworkspacedestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$workspacesNaming VERSION"
+$destinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming $bp"
+$forceUpdateFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming $bp$fs"
+$amazonworkspacedestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$workspacesNaming $ap"
 
 # Conditional execution based on config
 if ($config.chrome.options.downloadRegular) {
     # Create main folder and files folder if they don't exist
-    $folderName = "$chromeNaming VERSION"
+    $folderName = "$chromeNaming $bp"
     $folderPath = Join-Path -Path $PSScriptRoot -ChildPath $folderName
     $filesFolder = Join-Path -Path $folderPath -ChildPath "Files"
 
     if (-not (Test-Path $filesFolder)) {
         try {
             New-Item -Path $filesFolder -ItemType Directory -ErrorAction Stop
-            chrome-Log-Message "Info: Directory creation, '$chromeNaming VERSION' and 'Files' folder successfully created in $PSScriptRoot"
+            chrome-Log-Message "Info: Directory creation, '$chromeNaming $bp' and 'Files' folder successfully created in $PSScriptRoot"
         } catch {
             chrome-Log-Message "Error: Directory creation failed - $_"
         }
@@ -363,7 +402,7 @@ if ($config.chrome.options.downloadForced) {
     if (-not (Test-Path $forceUpdateFolder)) {
         try {
             New-Item -Path $forceUpdateFolder -ItemType Directory -ErrorAction Stop
-            chrome-Log-Message "Info: Directory creation, '$chromeNaming VERSION_force_update' successfully created in $PSScriptRoot"
+            chrome-Log-Message "Info: Directory creation, '$chromeNaming $bp $fs' successfully created in $PSScriptRoot"
         } catch {
             chrome-Log-Message "Error: Force update directory creation failed - $_"
         }
@@ -406,14 +445,14 @@ if ($config.chrome.options.downloadForced) {
 
 if ($config.amazonWorkspace.options.download) {
 # Create main folder and files folder if they don't exist
-$amazonworkspacefolderName = "$workspacesNaming VERSION"
+$amazonworkspacefolderName = "$workspacesNaming $ap"
 $amazonworkspacefolderPath = Join-Path -Path $PSScriptRoot -ChildPath $amazonworkspacefolderName
 $amazonworkspacefilesFolder = Join-Path -Path $amazonworkspacefolderPath -ChildPath "Files"
 
 if (-not (Test-Path $amazonworkspacefilesFolder)) {
     try {
         New-Item -Path $amazonworkspacefilesFolder -ItemType Directory -ErrorAction Stop
-        amazonworkspace-Log-Message "Info: Directory creation, '$workspacesNaming VERSION' and 'Files' folder successfully created in $PSScriptRoot"
+        amazonworkspace-Log-Message "Info: Directory creation, '$workspacesNaming $ap' and 'Files' folder successfully created in $PSScriptRoot"
     } catch {
         amazonworkspace-Log-Message "Error: Directory creation failed - $_"
     }
@@ -451,7 +490,7 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
 	}
 	else {
 		if ($config.chrome.options.downloadRegular -and -not $config.chrome.options.downloadForced) {
-            $msiPath = "$PSScriptRoot\$chromeNaming VERSION\Files\googlechromestandaloneenterprise64.msi"
+            $msiPath = "$PSScriptRoot\$chromeNaming $bp\Files\googlechromestandaloneenterprise64.msi"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet" -Wait
             $chromeRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
             $chromeVersion = Get-ChildItem -Path $chromeRegPath |
@@ -472,7 +511,7 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
             }
         }
         elseif ($config.chrome.options.downloadForced -and -not $config.chrome.options.downloadRegular) {
-            $msiPath = "$PSScriptRoot\$chromeNaming VERSION_force_update\googlechromestandaloneenterprise64.msi"
+            $msiPath = "$PSScriptRoot\$chromeNaming $bp $fs \googlechromestandaloneenterprise64.msi"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet" -Wait
             $chromeRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
             $chromeVersion = Get-ChildItem -Path $chromeRegPath |
@@ -481,7 +520,7 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
                                 Select-Object -ExpandProperty DisplayVersion
             # Rename the folder if the version was retrieved
             if ($chromeVersion) {
-                $newFolderName = "$chromeNaming $chromeVersion" + "_force_update"
+                $newFolderName = "$chromeNaming $chromeVersion" + "$fs"
                 try {
                     Rename-Item -Path $forceUpdateFolder -NewName $newFolderName -ErrorAction Stop
                     chrome-Log-Message "Info: Folder renamed to $newFolderName"
@@ -493,7 +532,7 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
             }
         }
         elseif ($config.chrome.options.downloadForced -and $config.chrome.options.downloadRegular) {
-            $msiPath = "$PSScriptRoot\$chromeNaming VERSION_force_update\googlechromestandaloneenterprise64.msi"
+            $msiPath = "$PSScriptRoot\$chromeNaming $bp $fs \googlechromestandaloneenterprise64.msi"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet" -Wait
         
             $chromeRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
@@ -514,7 +553,7 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
                 }
         
                 # Forced version folder
-                $newForcedFolderName = "$chromeNaming $chromeVersion" + "_force_update"
+                $newForcedFolderName = "$chromeNaming $chromeVersion" + "$fs"
                 try {
                     Rename-Item -Path $forceUpdateFolder -NewName $newForcedFolderName -ErrorAction Stop
                     chrome-Log-Message "Info: Folder renamed to $newForcedFolderName"
@@ -526,7 +565,7 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
             }
         }
         if ($config.amazonWorkspace.options.download) {
-        $msiPathamazonworkspace = "$PSScriptRoot\$workspacesNaming VERSION\Files\Amazon+WorkSpaces.msi"
+        $msiPathamazonworkspace = "$PSScriptRoot\$workspacesNaming $ap\Files\Amazon+WorkSpaces.msi"
         Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPathamazonworkspace`" /quiet" -Wait
         $workspacesRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
         $workspacesVersion = Get-ChildItem -Path $workspacesRegPath |
