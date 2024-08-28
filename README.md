@@ -165,7 +165,7 @@ You can download the script using `git clone` command. Follow these steps:
 2. Navigate to the directory where you want to download the script.
 3. Run the following command:
 ```
-git clone https://forgejo.olayzen.com/OlaYZen/MSI-Downloader.git
+git clone https://github.com/OlaYZen/MSI-Downloader.git
 ```
 
 This command will clone the repository into your current directory.
