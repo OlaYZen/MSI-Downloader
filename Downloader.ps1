@@ -511,7 +511,7 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
             }
         }
         elseif ($config.chrome.options.downloadForced -and -not $config.chrome.options.downloadRegular) {
-            $msiPath = "$PSScriptRoot\$chromeNaming $bp $fs \googlechromestandaloneenterprise64.msi"
+            $msiPath = "$PSScriptRoot\$chromeNaming $bp$fs\googlechromestandaloneenterprise64.msi"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet" -Wait
             $chromeRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
             $chromeVersion = Get-ChildItem -Path $chromeRegPath |
@@ -532,7 +532,7 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
             }
         }
         elseif ($config.chrome.options.downloadForced -and $config.chrome.options.downloadRegular) {
-            $msiPath = "$PSScriptRoot\$chromeNaming $bp $fs \googlechromestandaloneenterprise64.msi"
+            $msiPath = "$PSScriptRoot\$chromeNaming $bp$fs\googlechromestandaloneenterprise64.msi"
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet" -Wait
         
             $chromeRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
