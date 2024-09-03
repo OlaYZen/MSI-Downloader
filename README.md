@@ -1,6 +1,26 @@
-# Google Chrome & Amazon Workspaces Downloader MSI Script
+# MSI-Downloader
 
-This PowerShell script automates the process of downloading and organizing Google Chrome and Amazon Workspaces installers based on specified configurations. It supports downloading both 64-bit and 32-bit versions of Chrome and organizing them into appropriate folders. (64-bit only on Amazon Workspaces)
+This PowerShell script automates the process of downloading programs. You may think its like winget, but it's not. It's a script that automates the process of downloading and organizing installers based on specified configurations. It supports downloading both 64-bit and 32-bit version of Chrome and organizing them into appropriate folders. (64-bit only for the rest). The programs that are currently supported are:
+
+- Google Chrome
+- Amazon Workspaces
+- 7-Zip
+- VLC Media Player
+- WinRAR
+
+i might add more in the future. The script is written in PowerShell and is designed to be easy to use and configure. It does support EXE files, even though the name is misleading.
+
+## Features
+- Automatically downloads and installs the specified program.
+- Automatically organizes the downloaded program into appropriate folders.
+- Automatically renames the folder to the newest version of the program.
+- Automatically deletes old versions of the program.
+- Supports downloading both 64-bit and 32-bit versions of the program. (Chrome only)
+- Supports downloading the regular version and the forced update version of the program. (Chrome only)
+- Support custom URLs for downloading the programs.
+- Easy to use and configure.
+- Supports logging.
+
 
 ## Script Overview
 
@@ -19,16 +39,10 @@ The `config.json` file should be structured as follows:
       "folderNumber": false,
       "checkExist": false,
       "folderName": "Chrome -",
-      "bothPrefix": "VERSION",
+      "Prefix": "VERSION",
       "forcedSuffix": "_force_update",
-      "spesificChromeURL64": "",
-      "spesificChromeURL32": ""
-      },
-      "logging": {
-        "logName": "google_chrome",
-        "logFormat": "log",
-        "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
-        "clearLogs": false
+      "specificURL64": "",
+      "specificURL32": ""
       },
       "template": {
         "templateFolderNameRegular": "Chrome-Template",
@@ -38,24 +52,62 @@ The `config.json` file should be structured as follows:
   "amazonWorkspace":{
     "options": {
       "download": false,
-      "folderNumber": false,
-      "checkExist": false,
-      "folderName": "WorkSpaces -",
-      "AmazonPrefix": "VERSION",
-      "spesificAmazonURL": ""
-      },
-      "logging": {
-        "logName": "amazon_workspaces",
-        "logFormat": "log",
-        "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
-        "clearLogs": false
+      "folderNumber": true,
+      "checkExist": true,
+      "folderName": "Amazon Workspace -",
+      "Prefix": "VERSION",
+      "specificURL": ""
       },
       "template": {
         "templateFolderName": "Amazon-Workspace-Template"
       }
   },
-  "license": true,
-  "debug": false
+  "SevenZip": {
+    "options": {
+      "download": true,
+      "folderNumber": true,
+      "checkExist": true,
+      "folderName": "7-Zip -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "7-Zip-Template"
+      }
+  },
+  "VLC": {
+    "options": {
+      "download": false,
+      "folderNumber": true,
+      "checkExist": true,
+      "folderName": "VLC Media Player -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "VLC-Template"
+      }
+  },
+  "WinRAR": {
+    "options": {
+      "download": true,
+      "folderNumber": true,
+      "checkExist": true,
+      "folderName": "WinRAR -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "WinRAR-Template"
+      }
+  },
+  "logging": {
+    "logName": "Downloader",
+    "logFormat": "log",
+    "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
+    "clearLogs": true
+  },
+  "license": false
 }
 ```
 #### Options:
@@ -63,37 +115,31 @@ The `config.json` file should be structured as follows:
 ##### Chrome Specific:
 - `downloadRegular`: A boolean flag to enable downloading and installing the regular version of Chrome.
 - `downloadForced`: A boolean flag to enable downloading and installing the forced update version of Chrome.
-- `bothPrefix`: A String defining the prefix for both the regular and forced update versions of Chrome. The default prefix is `VERSION`.
 - `forcedSuffix`: A string defining the suffix for the forced update version of Chrome. The default suffix is `_force_update`.
-- `spesificChromeURL64`: A string defining custom URL for the 64-bit version of Chrome. Leave empty to use the default URL.
-- `spesificChromeURL32`: A string defining custom URL for the 32-bit version of Chrome. Leave empty to use the default URL.
-
-##### WorkSpaces Specific:
-
-- `download`: A boolean flag to enable downloading and installing Amazon Workspaces.
-- `AmazonPrefix`: A String defining the prefix for the Amazon Workspaces version. The default prefix is `VERSION`.
-- `spesificAmazonURL`: A string defining custom URL for the Amazon Workspaces version. Leave empty to use the default URL.
+- `spesificURL64`: A string defining custom URL for the 64-bit version of Chrome. Leave empty to use the default URL.
+- `spesificURL32`: A string defining custom URL for the 32-bit version of Chrome. Leave empty to use the default URL.
+- `templateFolderNameRegular`: A string defining the name of the regular GoogleChrome template folder name.
+- `templateFolderNameForced`: A string defining the name of the forced Google Chrome template folder name.
 
 ##### Universal:
-
+- `download`: A boolean flag to enable downloading and installing Amazon Workspaces.
 - `folderNumber`: A boolean flag to enable the automatic renaming of the folder to the newest version of Chrome. ⚠️ **This option requires administrative privileges when executing the script!** ⚠️
 - `checkExist`: A boolean flag to delete old Chrome folders when the script is executed. ⚠️ **This action will delete your Chrome folders, so ensure you have backups if you wish to retain them.** ⚠️
-- `folderName`: A string defining the name of the folders. The default name is `Chrome -` and  `WorkSpaces -`.
-- `license`: A boolean flag to enable/disable the MIT license showing on script start.
-- `debug`: A boolean flag to enable/disable debugging in the logs.
+- `folderName`: A string defining the name of the folders. The default name is `Chrome -`,  `WorkSpaces -` etc.
+- `Prefix`: A String defining the prefix for the Amazon Workspaces version. The default prefix is `VERSION`.
+- `spesificURL`: A string defining custom URL for the Amazon Workspaces version. Leave empty to use the default URL.
+- `templateFolderName`: A string defining the name of Amazon WorkSpaces template folder name.
 
 #### Logging options:
 ---
-- `logName`: A string defining the name of the log(s) file(s). The default name is `google_chrome` and  `amazon_workspaces`.
+- `logName`: A string defining the name of the log(s) file(s). The default name is `Downloader`.
 - `logFormat`: A string defining the format of the log(s) file(s). The default format is `log`.
 - `logDateFormat`: A string defining the format of timestamps in logs. The default format is `dd/MM/yyyy HH:mm:ss`.
 - `clearLogs`: A boolean flag to enable clearing of the log(s) file(s). This will clear the content inside of the log file(s).
 
-#### Template options:
+#### Optional Extras
 ---
-- `templateFolderNameRegular`: A string defining the name of the regular GoogleChrome template folder name.
-- `templateFolderNameForced`: A string defining the name of the forced Google Chrome template folder name.
-- `templateFolderName`: A string defining the name of Amazon WorkSpaces template folder name.
+- `license`: A boolean flag to enable/disable the MIT license showing on script start.
 
 ### Date Configuration
 ---
@@ -167,6 +213,10 @@ Create the following template folders and populate them with necessary files:
 - `Template\Chrome-Template`
 - `Template\Chrome-Template-Forced`
 - `Template\Amazon-Workspace-Template`
+- `Template\7-Zip-Template`
+- `Template\VLC-Template`
+- `Template\WinRAR-Template`
+
 
 ### 2. Downloading the Script:
 
@@ -191,4 +241,4 @@ This command will clone the repository into your current directory.
 
 ### 4. Monitor the Logs:
 
-- Check `google_chrome.log` or `amazon_workspaces.log` in the script directory for detailed logs of the execution process, including any errors encountered.
+- Check `Downloader.log` in the script directory for detailed logs of the execution process, including any errors encountered.

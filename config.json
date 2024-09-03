@@ -6,16 +6,10 @@
       "folderNumber": false,
       "checkExist": false,
       "folderName": "Chrome -",
-      "bothPrefix": "VERSION",
+      "Prefix": "VERSION",
       "forcedSuffix": "_force_update",
-      "spesificChromeURL64": "",
-      "spesificChromeURL32": ""
-      },
-      "logging": {
-        "logName": "google_chrome",
-        "logFormat": "log",
-        "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
-        "clearLogs": false
+      "specificURL64": "",
+      "specificURL32": ""
       },
       "template": {
         "templateFolderNameRegular": "Chrome-Template",
@@ -25,22 +19,60 @@
   "amazonWorkspace":{
     "options": {
       "download": false,
-      "folderNumber": false,
-      "checkExist": false,
-      "folderName": "WorkSpaces -",
-      "amazonPrefix": "VERSION",
-      "spesificAmazonURL": ""
-      },
-      "logging": {
-        "logName": "amazon_workspaces",
-        "logFormat": "log",
-        "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
-        "clearLogs": false
+      "folderNumber": true,
+      "checkExist": true,
+      "folderName": "Amazon Workspace -",
+      "Prefix": "VERSION",
+      "specificURL": ""
       },
       "template": {
         "templateFolderName": "Amazon-Workspace-Template"
       }
   },
-  "license": true,
-  "debug": false
+  "SevenZip": {
+    "options": {
+      "download": true,
+      "folderNumber": true,
+      "checkExist": true,
+      "folderName": "7-Zip -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "7-Zip-Template"
+      }
+  },
+  "VLC": {
+    "options": {
+      "download": false,
+      "folderNumber": true,
+      "checkExist": true,
+      "folderName": "VLC Media Player -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "VLC-Template"
+      }
+  },
+  "WinRAR": {
+    "options": {
+      "download": true,
+      "folderNumber": true,
+      "checkExist": true,
+      "folderName": "WinRAR -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "WinRAR-Template"
+      }
+  },
+  "logging": {
+    "logName": "Downloader",
+    "logFormat": "log",
+    "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
+    "clearLogs": true
+  },
+  "license": false
 }
