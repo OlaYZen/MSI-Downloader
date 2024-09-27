@@ -805,7 +805,7 @@ else {
     Write-Output "For additional logs, please refer to $PSScriptRoot\$logFileNameFormat."
 }
 $Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced -or $config.amazonWorkspace.options.download -or $config.SevenZip.options.download -or $config.VLC.options.download -or $config.WinRAR.options.download -or $config.Firefox.options.download -or $config.LenovoSystemUpdate.options.download -or $config.JabraDirect.options.download -or $config.NotepadPlusPlus.options.download
-if ($config.old && $checker) {
+if ($config.old -eq $true -and $checker -eq $true) {
     $oldFolderPath = "$PSScriptRoot\.Old"
     if (Test-Path -Path $oldFolderPath) {
         if ($config.debug  -eq $true) {Log_Message "Debug: .Old folder exists at '$oldFolderPath'."}
@@ -818,7 +818,7 @@ if ($config.old && $checker) {
             if (Test-Path -Path $oldFolder) {
                 if ($config.debug -eq $true) {Log_Message "Debug: The folder `"$($folder.Name)`" exists in the .Old folder."}
                 Remove-Item -Path $folder.FullName -Recurse -Force
-                if ($config.debug -eq $true) {Log_Message "Debug: The folder `"$($folder.Name)`" has been removed from the script root."}
+                if ($config.debug -eq $true) {Log_Message "Debug: The folder `"$($folder.Name)`" has been deleted."}
             } else {
                 Log_Message "Info: New file detected `"$($folder.Name)`""
             }
