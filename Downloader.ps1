@@ -14,7 +14,7 @@ $headers = @{
 
 if($config.license){
     # Writes out the license to the end user
-    $copyrightUrl = "https://forgejo.olayzen.com/OlaYZen/MSI-Downloader/raw/branch/main/LICENSE"
+    $copyrightUrl = "https://raw.githubusercontent.com/OlaYZen/MSI-Downloader/refs/heads/main/LICENSE"
     $copyrightResponse = Invoke-WebRequest -Uri $copyrightUrl -Headers $headers
     $copyrightContent = $copyrightResponse.Content
     Write-Host $copyrightContent
