@@ -274,10 +274,14 @@ Ensure that `config.json` is present in the same directory as the script.
 Create the following template folders and populate them with necessary files:
 - `Template\Chrome-Template`
 - `Template\Chrome-Template-Forced`
+- `Template\Firefox-Template`
 - `Template\Amazon-Workspace-Template`
 - `Template\7-Zip-Template`
-- `Template\VLC-Template`
 - `Template\WinRAR-Template`
+- `Template\NotepadPlusPlus-Template`
+- `Template\VLC-Template`
+- `Template\Lenovo-System-Update-Template`
+- `Template\Jabra-Direct-Template`
 
 
 ### 2. Downloading the Script:
