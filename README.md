@@ -3,10 +3,15 @@
 This PowerShell script automates the process of downloading programs. You may think its like winget, but it's not. It's a script that automates the process of downloading and organizing installers based on specified configurations. It supports downloading both 64-bit and 32-bit version of Chrome and organizing them into appropriate folders. (64-bit only for the rest). The programs that are currently supported are:
 
 - Google Chrome
+- Firefox
 - Amazon Workspaces
 - 7-Zip
-- VLC Media Player
 - WinRAR
+- Notepad++
+- VLC Media Player
+- Lenovo System Update
+- Jabra Direct
+
 
 i might add more in the future. The script is written in PowerShell and is designed to be easy to use and configure. It does support EXE files, even though the name is misleading.
 
