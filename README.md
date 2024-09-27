@@ -37,7 +37,7 @@ The `config.json` file should be structured as follows:
       "downloadRegular": true,
       "downloadForced": false,
       "folderNumber": false,
-      "checkExist": false,
+      "deleteExist": false,
       "folderName": "Chrome -",
       "Prefix": "VERSION",
       "forcedSuffix": "_force_update",
@@ -49,11 +49,24 @@ The `config.json` file should be structured as follows:
         "templateFolderNameForced": "Chrome-Template-Forced"
       }
   },
+  "Firefox": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "Firefox -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "Firefox-Template"
+      }
+  },
   "amazonWorkspace":{
     "options": {
       "download": false,
-      "folderNumber": true,
-      "checkExist": true,
+      "folderNumber": false,
+      "deleteExist": false,
       "folderName": "Amazon Workspace -",
       "Prefix": "VERSION",
       "specificURL": ""
@@ -64,9 +77,9 @@ The `config.json` file should be structured as follows:
   },
   "SevenZip": {
     "options": {
-      "download": true,
-      "folderNumber": true,
-      "checkExist": true,
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
       "folderName": "7-Zip -",
       "Prefix": "VERSION",
       "specificURL": ""
@@ -75,24 +88,11 @@ The `config.json` file should be structured as follows:
         "templateFolderName": "7-Zip-Template"
       }
   },
-  "VLC": {
-    "options": {
-      "download": false,
-      "folderNumber": true,
-      "checkExist": true,
-      "folderName": "VLC Media Player -",
-      "Prefix": "VERSION",
-      "specificURL": ""
-      },
-      "template": {
-        "templateFolderName": "VLC-Template"
-      }
-  },
   "WinRAR": {
     "options": {
-      "download": true,
-      "folderNumber": true,
-      "checkExist": true,
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
       "folderName": "WinRAR -",
       "Prefix": "VERSION",
       "specificURL": ""
@@ -101,13 +101,66 @@ The `config.json` file should be structured as follows:
         "templateFolderName": "WinRAR-Template"
       }
   },
+  "NotepadPlusPlus": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "NotepadPlusPlus -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "NotepadPlusPlus-Template"
+      }
+  },
+  "VLC": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "VLC Media Player -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "VLC-Template"
+      }
+  },
+  "LenovoSystemUpdate": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "Lenovo System Update -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "Lenovo-System-Update-Template"
+      }
+  },
+  "JabraDirect": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "Jabra Direct -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "Jabra-Direct-Template"
+      }
+  },
   "logging": {
     "logName": "Downloader",
     "logFormat": "log",
     "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
-    "clearLogs": true
+    "clearLogs": false
   },
-  "license": false
+  "license": false,
+  "debug": false
 }
 ```
 #### Options:
@@ -122,13 +175,13 @@ The `config.json` file should be structured as follows:
 - `templateFolderNameForced`: A string defining the name of the forced Google Chrome template folder name.
 
 ##### Universal:
-- `download`: A boolean flag to enable downloading and installing Amazon Workspaces.
-- `folderNumber`: A boolean flag to enable the automatic renaming of the folder to the newest version of Chrome. ⚠️ **This option requires administrative privileges when executing the script!** ⚠️
-- `checkExist`: A boolean flag to delete old Chrome folders when the script is executed. ⚠️ **This action will delete your Chrome folders, so ensure you have backups if you wish to retain them.** ⚠️
-- `folderName`: A string defining the name of the folders. The default name is `Chrome -`,  `WorkSpaces -` etc.
-- `Prefix`: A String defining the prefix for the Amazon Workspaces version. The default prefix is `VERSION`.
-- `spesificURL`: A string defining custom URL for the Amazon Workspaces version. Leave empty to use the default URL.
-- `templateFolderName`: A string defining the name of Amazon WorkSpaces template folder name.
+- `download`: A boolean flag to enable downloading and installing the application.
+- `folderNumber`: A boolean flag to enable the automatic renaming of the folder to the newest version of the application. ⚠️ **This option requires administrative privileges when executing the script!** ⚠️
+- `deleteExist`: A boolean flag to delete old folders when the script is executed. ⚠️ **This action will delete your Chrome, AWS, 7-Zip, etc.. folders, so ensure you have backups if you wish to retain them.** ⚠️
+- `folderName`: A string defining the name of the folders. The default name is `Chrome -`,  `WorkSpaces -` etc..
+- `Prefix`: A String defining the prefix for the application version. The default prefix is `VERSION`.
+- `spesificURL`: A string defining custom URL for the application version. Leave empty to use the default URL.
+- `templateFolderName`: A string defining the name of application template folder name.
 
 #### Logging options:
 ---
@@ -140,6 +193,10 @@ The `config.json` file should be structured as follows:
 #### Optional Extras
 ---
 - `license`: A boolean flag to enable/disable the MIT license showing on script start.
+
+- `debug`: A boolean flag to enable/disable debug mode. When enabled, additional debug information will be logged to help with troubleshooting.
+
+
 
 ### Date Configuration
 ---

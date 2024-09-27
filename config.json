@@ -4,7 +4,7 @@
       "downloadRegular": true,
       "downloadForced": false,
       "folderNumber": false,
-      "checkExist": false,
+      "deleteExist": false,
       "folderName": "Chrome -",
       "Prefix": "VERSION",
       "forcedSuffix": "_force_update",
@@ -16,11 +16,24 @@
         "templateFolderNameForced": "Chrome-Template-Forced"
       }
   },
+  "Firefox": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "Firefox -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "Firefox-Template"
+      }
+  },
   "amazonWorkspace":{
     "options": {
       "download": false,
-      "folderNumber": true,
-      "checkExist": true,
+      "folderNumber": false,
+      "deleteExist": false,
       "folderName": "Amazon Workspace -",
       "Prefix": "VERSION",
       "specificURL": ""
@@ -31,9 +44,9 @@
   },
   "SevenZip": {
     "options": {
-      "download": true,
-      "folderNumber": true,
-      "checkExist": true,
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
       "folderName": "7-Zip -",
       "Prefix": "VERSION",
       "specificURL": ""
@@ -42,24 +55,11 @@
         "templateFolderName": "7-Zip-Template"
       }
   },
-  "VLC": {
-    "options": {
-      "download": false,
-      "folderNumber": true,
-      "checkExist": true,
-      "folderName": "VLC Media Player -",
-      "Prefix": "VERSION",
-      "specificURL": ""
-      },
-      "template": {
-        "templateFolderName": "VLC-Template"
-      }
-  },
   "WinRAR": {
     "options": {
-      "download": true,
-      "folderNumber": true,
-      "checkExist": true,
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
       "folderName": "WinRAR -",
       "Prefix": "VERSION",
       "specificURL": ""
@@ -68,11 +68,64 @@
         "templateFolderName": "WinRAR-Template"
       }
   },
+  "NotepadPlusPlus": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "NotepadPlusPlus -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "NotepadPlusPlus-Template"
+      }
+  },
+  "VLC": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "VLC Media Player -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "VLC-Template"
+      }
+  },
+  "LenovoSystemUpdate": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "Lenovo System Update -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "Lenovo-System-Update-Template"
+      }
+  },
+  "JabraDirect": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "Jabra Direct -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "Jabra-Direct-Template"
+      }
+  },
   "logging": {
     "logName": "Downloader",
     "logFormat": "log",
     "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
-    "clearLogs": true
+    "clearLogs": false
   },
-  "license": false
+  "license": false,
+  "debug": false
 }
