@@ -127,5 +127,6 @@
     "clearLogs": false
   },
   "license": false,
-  "debug": false
+  "debug": false,
+  "old": false
 }

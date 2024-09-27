@@ -165,7 +165,8 @@ The `config.json` file should be structured as follows:
     "clearLogs": false
   },
   "license": false,
-  "debug": false
+  "debug": false,
+  "old": false
 }
 ```
 #### Options:
@@ -201,7 +202,7 @@ The `config.json` file should be structured as follows:
 
 - `debug`: A boolean flag to enable/disable debug mode. When enabled, additional debug information will be logged to help with troubleshooting.
 
-
+- `old`: A boolean flag to enable or disable the use of the .Old folder for storing previous versions of downloaded applications.
 
 ### Date Configuration
 ---

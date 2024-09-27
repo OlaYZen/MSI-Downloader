@@ -93,7 +93,6 @@ function Log_Message {
 
 # Log the start of the script
 Log_Message "Info: Script started"
-if ($config.debug -eq $true) {Log_Message "Debug: Script started"}
 $apps = @(
     @{ name = "chrome"; download = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced; deleteExist = $config.chrome.options.deleteExist; naming = $chromeNaming },
     @{ name = "amazonWorkspace"; download = $config.amazonWorkspace.options.download; deleteExist = $config.amazonWorkspace.options.deleteExist; naming = $workspacesNaming },
@@ -134,7 +133,7 @@ if ($config.chrome.options.downloadRegular -or $config.chrome.options.downloadFo
     else {
         $chrome64BitUrl = $config.chrome.options.specificURL64
     }
-    if ($config.debug -eq $true) {Log_Message "Debug: Chrome 64-bit URL set to `"$chrome64BitUrl`""}
+    if ($config.debug -eq $true) {Log_Message "Debug: `"Chrome 64-bit`" URL set to `"$chrome64BitUrl`""}
 }
 
 if ($config.chrome.options.downloadRegular){
@@ -145,7 +144,7 @@ if ($config.chrome.options.downloadRegular){
     else {
         $chrome32BitUrl = $config.chrome.options.specificURL32
     }
-    if ($config.debug -eq $true) {Log_Message "Debug: Chrome 32-bit URL set to `"$chrome32BitUrl`""}
+    if ($config.debug -eq $true) {Log_Message "Debug: `"Chrome 32-bit`" URL set to `"$chrome32BitUrl`""}
 }
 
 if ($config.amazonWorkspace.options.download){
@@ -156,7 +155,7 @@ if ($config.amazonWorkspace.options.download){
     else {
         $amazonworkspace64BitUrl = $config.amazonWorkspace.options.specificURL
     }
-    if ($config.debug -eq $true) {Log_Message "Debug: Amazon Workspaces URL set to `"$amazonworkspace64BitUrl`""}
+    if ($config.debug -eq $true) {Log_Message "Debug: `"Amazon Workspaces`" URL set to `"$amazonworkspace64BitUrl`""}
 }
 
 
@@ -201,7 +200,7 @@ if ($config.SevenZip.options.download){
         $7Zip64BitUrlClean = $config.SevenZip.options.specificURL -replace '^https:\/\/www\.7-zip\.org\/a\/', ''
 
     }
-    if ($config.debug -eq $true) {Log_Message "Debug: 7-Zip URL set to `"$7Zip64BitUrl`""}
+    if ($config.debug -eq $true) {Log_Message "Debug: `"7-Zip`" URL set to `"$7Zip64BitUrl`""}
 }
 
 if ($config.VLC.options.download){
@@ -242,7 +241,7 @@ if ($config.VLC.options.download){
         $VLC64BitUrlClean = $config.VLC.options.specificURL -replace '^https:\/\/www\.7-zip\.org\/a\/', ''
 
     }
-    if ($config.debug -eq $true) {Log_Message "Debug: VLC URL set to `"$VLC64BitUrl`""}
+    if ($config.debug -eq $true) {Log_Message "Debug: `"VLC`" URL set to `"$VLC64BitUrl`""}
 }
 
 if ($config.WinRAR.options.download){
@@ -285,7 +284,7 @@ if ($config.WinRAR.options.download){
     $winrar64BitUrlClean = $config.winrar.options.specificURL -replace '^https:\/\/www\.win-rar\.com\/fileadmin\/winrar-versions\/winrar\/', ''
 
     }
-    if ($config.debug -eq $true) {Log_Message "Debug: WinRAR URL set to `"$winrar64BitUrl`""}
+    if ($config.debug -eq $true) {Log_Message "Debug: `"WinRAR`" URL set to `"$winrar64BitUrl`""}
 }
 
 if ($config.Firefox.options.download){
@@ -319,7 +318,7 @@ if ($config.Firefox.options.download){
     else {
         $Firefox64BitUrl = $config.Firefox.options.specificURL
     }
-    if ($config.debug -eq $true) {Log_Message "Debug: Firefox URL set to `"$Firefox64BitUrl`""}
+    if ($config.debug -eq $true) {Log_Message "Debug: `"Firefox`" URL set to `"$Firefox64BitUrl`""}
 }
 
 if ($config.LenovoSystemUpdate.options.download){
@@ -353,7 +352,7 @@ if ($config.LenovoSystemUpdate.options.download){
     else {
         $LenovoSystemUpdate64BitUrl = $config.LenovoSystemUpdate.options.specificURL
     }
-    if ($config.debug -eq $true) {Log_Message "Debug: Lenovo System Update URL set to `"$LenovoSystemUpdate64BitUrl`""}
+    if ($config.debug -eq $true) {Log_Message "Debug: `"Lenovo System Update`" URL set to `"$LenovoSystemUpdate64BitUrl`""}
 }
 
 if ($config.JabraDirect.options.download){
@@ -364,7 +363,7 @@ if ($config.JabraDirect.options.download){
     else {
         $JabraDirect64BitUrl = $config.JabraDirect.options.specificURL
     }
-    if ($config.debug -eq $true) {Log_Message "Debug: Jabra Direct URL set to `"$JabraDirect64BitUrl`""}
+    if ($config.debug -eq $true) {Log_Message "Debug: `"Jabra Direct`" URL set to `"$JabraDirect64BitUrl`""}
 }
 
 if ($config.NotepadPlusPlus.options.download){
@@ -399,7 +398,7 @@ if ($config.NotepadPlusPlus.options.download){
     else {
         $NotepadPlusPlus64BitUrl = $config.NotepadPlusPlus.options.specificURL
     }
-    if ($config.debug -eq $true) {Log_Message "Debug: Notepad++ URL set to `"$NotepadPlusPlus64BitUrl`""}
+    if ($config.debug -eq $true) {Log_Message "Debug: `"Notepad++`" URL set to `"$NotepadPlusPlus64BitUrl`""}
 }
 
 
@@ -805,10 +804,33 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
 else {
     Write-Output "For additional logs, please refer to $PSScriptRoot\$logFileNameFormat."
 }
-
 $Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced -or $config.amazonWorkspace.options.download -or $config.SevenZip.options.download -or $config.VLC.options.download -or $config.WinRAR.options.download -or $config.Firefox.options.download -or $config.LenovoSystemUpdate.options.download -or $config.JabraDirect.options.download -or $config.NotepadPlusPlus.options.download
+if ($config.old && $checker) {
+    $oldFolderPath = "$PSScriptRoot\.Old"
+    if (Test-Path -Path $oldFolderPath) {
+        if ($config.debug  -eq $true) {Log_Message "Debug: .Old folder exists at '$oldFolderPath'."}
+    $downloadedApps = $apps | Where-Object { $_.download }
+    foreach ($app in $downloadedApps) {
+        $folderNamePattern = "$($app.naming) *"
+        $downloadedFolders = Get-ChildItem -Path $PSScriptRoot -Directory | Where-Object { $_.Name -like $folderNamePattern }
+        foreach ($folder in $downloadedFolders) {
+            $oldFolder = Join-Path -Path $oldFolderPath -ChildPath $folder.Name
+            if (Test-Path -Path $oldFolder) {
+                if ($config.debug -eq $true) {Log_Message "Debug: The folder `"$($folder.Name)`" exists in the .Old folder."}
+                Remove-Item -Path $folder.FullName -Recurse -Force
+                if ($config.debug -eq $true) {Log_Message "Debug: The folder `"$($folder.Name)`" has been removed from the script root."}
+            } else {
+                Log_Message "Info: New file detected `"$($folder.Name)`""
+            }
+        }
+    }
+    } else {
+        Log_Message "Warn: .Old folder does not exist at '$oldFolderPath'."
+    }
+}
+
 if (-not $Checker) {
-    Log_Message "Error: No download version selected in the configuration."
+    Log_Message "Warn: No download version selected in the configuration."
 }
 else {
     Log_Message "Info: Script ended"
