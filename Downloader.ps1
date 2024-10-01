@@ -808,7 +808,11 @@ $Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.dow
 if ($config.old -eq $true -and $checker -eq $true) {
     $oldFolderPath = "$PSScriptRoot\.Old"
     if (Test-Path -Path $oldFolderPath) {
-        if ($config.debug  -eq $true) {Log_Message "Debug: .Old folder exists at '$oldFolderPath'."}
+        if ($config.debug  -eq $true) {
+            Log_Message "Debug: .Old folder exists at '$oldFolderPath'."
+            Log_Message "Debug: Starting old folder check."
+        }
+        else {Log_Message "Info: Starting old folder check."}
     $downloadedApps = $apps | Where-Object { $_.download }
     foreach ($app in $downloadedApps) {
         $folderNamePattern = "$($app.naming) *"
@@ -821,6 +825,7 @@ if ($config.old -eq $true -and $checker -eq $true) {
                 if ($config.debug -eq $true) {Log_Message "Debug: The folder `"$($folder.Name)`" has been deleted."}
             } else {
                 Log_Message "Info: New file detected `"$($folder.Name)`""
+                Write-Output "Info: New file detected `"$($folder.Name)`""
             }
         }
     }
