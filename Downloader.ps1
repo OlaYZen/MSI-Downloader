@@ -1,4 +1,6 @@
-﻿# Read configuration from JSON file
+﻿Clear-Host
+
+# Read configuration from JSON file
 $configPath = "$PSScriptRoot\config.json"
 $config = Get-Content -Path $configPath | ConvertFrom-Json
 
@@ -151,6 +153,7 @@ if ($config.amazonWorkspace.options.download){
     # AmazonWorkspaces URL
     if ($config.amazonWorkspace.options.specificURL -eq "") {
         $amazonworkspace64BitUrl = "https://d2td7dqidlhjx7.cloudfront.net/prod/global/windows/Amazon+WorkSpaces.msi"
+        $amazonworkspace64BitUrlClean = "Amazon+WorkSpaces.msi"
     }
     else {
         $amazonworkspace64BitUrl = $config.amazonWorkspace.options.specificURL
@@ -359,6 +362,7 @@ if ($config.JabraDirect.options.download){
     # Jabra Direct URL
     if ($config.JabraDirect.options.specificURL -eq "") {
         $JabraDirect64BitUrl = "https://jabraxpressonlineprdstor.blob.core.windows.net/jdo/JabraDirectSetup.exe"
+        $JabraDirect64BitUrlClean = "JabraDirectSetup.exe"
     }
     else {
         $JabraDirect64BitUrl = $config.JabraDirect.options.specificURL
@@ -582,13 +586,37 @@ function CreateInstallCmd {
     }
 }
 
+function MoveFolder {
+    param (
+        [string]$sourceFolder,
+        [string]$file
+    )
+    $filesFolder = Join-Path -Path $sourceFolder -ChildPath "Files"
+    $filePath = Join-Path -Path $sourceFolder -ChildPath $file
+
+    if (-not (Test-Path $filesFolder)) {
+        try {
+            New-Item -Path $filesFolder -ItemType Directory -ErrorAction Stop | Out-Null
+            Log_Message "Info: Directory creation, `"$filesFolder`" successfully created."
+        } catch {
+            Log_Message "Error: Directory creation failed - $_"
+            return
+        }
+    }
+
+    try {
+        Move-Item -Path $filePath -Destination $filesFolder -ErrorAction Stop | Out-Null
+        Log_Message "Info: File `"$filePath`" successfully moved to `"$filesFolder`""
+    } catch {
+        Log_Message "Error: File move failed - $_"
+    }
+}
+
 if ($config.amazonWorkspace.options.download) {
-    $folderName = "$workspacesNaming $WORKSPACESprefix"
-    $folderPath = Join-Path -Path $PSScriptRoot -ChildPath $folderName
-    $filesFolder = Join-Path -Path $folderPath -ChildPath "Files"
-    CreateFolder -folderPath $filesFolder -logMessage "$workspacesNaming $WORKSPACESprefix and Files folder"
+    CreateFolder -folderPath $amazonworkspacedestinationFolder -logMessage "$workspacesNaming $WORKSPACESprefix"
     CopyTemplate -sourceFolder $amazonworkspacesourceFolderRegular -destinationFolder $amazonworkspacedestinationFolder
-    DownloadInstaller -url $amazonworkspace64BitUrl -destinationFolder $filesFolder
+    DownloadInstaller -url $amazonworkspace64BitUrl -destinationFolder $amazonworkspacedestinationFolder
+    MoveFolder -sourceFolder $amazonworkspacedestinationFolder -file $amazonworkspace64BitUrlClean
 }
 
 if ($config.SevenZip.options.download) {
@@ -631,12 +659,10 @@ if ($config.LenovoSystemUpdate.options.download) {
 }
 
 if ($config.JabraDirect.options.download) {
-    $folderName = "$JabraDirectNaming $JabraDirectPrefix"
-    $folderPath = Join-Path -Path $PSScriptRoot -ChildPath $folderName
-    $filesFolder = Join-Path -Path $folderPath -ChildPath "Files"
-    CreateFolder -folderPath $filesFolder -logMessage "$JabraDirectNaming $JabraDirectPrefix and Files folder"
+    CreateFolder -folderPath $JabraDirectDestinationFolder -logMessage "$JabraDirectNaming $JabraDirectPrefix"
     CopyTemplate -sourceFolder $JabraDirectsourceFolderRegular -destinationFolder $JabraDirectdestinationFolder
-    DownloadInstaller -url $JabraDirect64BitUrl -destinationFolder $filesFolder
+    DownloadInstaller -url $JabraDirect64BitUrl -destinationFolder $JabraDirectDestinationFolder
+    MoveFolder -sourceFolder $JabraDirectDestinationFolder -file $JabraDirect64BitUrlClean
 }
 
 if ($config.NotepadPlusPlus.options.download) {
@@ -797,12 +823,10 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
                 }
             }
         }
-            
-        Write-Output "For additional logs, please refer to $PSScriptRoot\$logFileNameFormat."
 	}
 }
 else {
-    Write-Output "For additional logs, please refer to $PSScriptRoot\$logFileNameFormat."
+    Write-Output "For additional logs, please refer to $PSScriptRoot\$logFileNameFormat"
 }
 $Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced -or $config.amazonWorkspace.options.download -or $config.SevenZip.options.download -or $config.VLC.options.download -or $config.WinRAR.options.download -or $config.Firefox.options.download -or $config.LenovoSystemUpdate.options.download -or $config.JabraDirect.options.download -or $config.NotepadPlusPlus.options.download
 if ($config.old -eq $true -and $checker -eq $true) {
@@ -838,5 +862,6 @@ if (-not $Checker) {
     Log_Message "Warn: No download version selected in the configuration."
 }
 else {
+    Write-Output "For additional logs, please refer to $PSScriptRoot\$logFileNameFormat"
     Log_Message "Info: Script ended"
 }
