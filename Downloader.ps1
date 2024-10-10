@@ -1,4 +1,38 @@
 ﻿Clear-Host
+function Check-NewVersion {
+    param (
+        [string]$repoUrl,
+        [string]$currentVersion
+    )
+
+    try {
+        $apiUrl = "$repoUrl/releases/latest"
+        $response = Invoke-WebRequest -Uri $apiUrl -Headers $headers -UseBasicParsing
+        $latestRelease = $response.Content | ConvertFrom-Json
+        $latestVersion = $latestRelease.tag_name
+
+        if ($latestVersion -ne $currentVersion) {
+            Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
+        $userInput = Read-Host "Do you want to start the script? (Y/n)"
+        if ($userInput -eq "Y" -or $userInput -eq "y" -or $userInput -eq "") {
+        } else {
+            exit
+        }
+        } else {
+            Write-Host "You are using the latest version of the script."
+        }
+    } catch {
+        Write-Host "Failed to check for a new version of the script. Please check your internet connection or the repository URL."
+    }
+}
+
+$repoUrl = "https://api.github.com/repos/OlaYZen/MSI-Downloader"
+$currentVersion = "v1.0.0" 
+
+Check-NewVersion -repoUrl $repoUrl -currentVersion $currentVersion
+
+
+
 
 # Read configuration from JSON file
 $configPath = "$PSScriptRoot\config.json"
@@ -493,6 +527,8 @@ if ($config.JabraDirect.options.download){
     }
     if ($config.debug -eq $true) {Log_Message "Debug: `"Jabra Direct`" URL set to `"$JabraDirect64BitUrl`""}
 }
+
+Clear-Host
 
 # Conditional execution based on config
 if ($config.chrome.options.downloadRegular) {
