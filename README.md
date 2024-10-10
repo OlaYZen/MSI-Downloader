@@ -287,13 +287,15 @@ The Dell config requires python because they block any script that tries to fetc
 The script automatically installs the requirements file. This means you only have to install python manually.
 
 ## Arguments
-`-y` Automatically starts the script without requiring a Y/n response if the script is outdated.
+`-y, -Yes` Automatically starts the script without requiring a Y/n response if the script is outdated.
 
-`-u` Updates the script to the latest version and restarts the script.
+`-u, -Update` Updates the script to the latest version and restarts the script.
 
-`-s` Starts the script. Combind with -u to start the script after updating. (-u -s)
+`-s, -Start` Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]
 
-`-h` Displays the help message.
+`-l, -Log` Opens the log file in the default text editor.
+
+`-h, -Help` Displays the help message.
 
 ## Script Usage
 ### 1. Prepare the Environment:

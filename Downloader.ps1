@@ -1,21 +1,35 @@
 ﻿param (
+    [Alias("Yes")]
     [switch]$y,
+
+    [Alias("Help")]
     [switch]$h,
+
+    [Alias("Update")]
     [switch]$u,
-    [switch]$s
+
+    [Alias("Start")]
+    [switch]$s,
+
+    [Alias("Log")]
+    [switch]$l
 )
 
 Clear-Host
 $currentVersion = "v1.0.4"
 
 if ($h) {
-    Write-Host "Usage: .\Downloader.ps1 [-y] [-u] [-s] [-h]"
+    Write-Host "Usage: .\Downloader.ps1 [-y|-Yes] [-u|-Update] [-s|-Start] [-l|-Log] [-h|-Help]"
     Write-Host ""
-    Write-Host "Options:"
-    Write-Host "  -y    Automatically starts the script without requiring a Y/n response if the script is outdated."
-    Write-Host "  -u    Updates the script to the latest version and restarts the script."
-    Write-Host "  -s    Starts the script. Combind with -u to start the script after updating. (-u -s)"
-    Write-Host "  -h    Displays this help message."
+    Write-Host "Additional Options:"
+    Write-Host "  -y, -Yes       Automatically starts the script without requiring a Y/n response if the script is outdated."
+    Write-Host ""
+    Write-Host "  -u, -Update    Updates the script to the latest version and restarts the script."
+    Write-Host "  -s, -Start     Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]"
+    Write-Host ""
+    Write-Host "  -l, -Log       Opens the log file in the default text editor."
+    Write-Host ""
+    Write-Host "  -h, -Help      Displays this help message."
     exit
 }
 
@@ -58,7 +72,7 @@ if ($u) {
     exit
 }
 
-if (-not $u) {
+if (-not $u -and -not $l) {
     function Check-NewVersion {
         param (
             [string]$repoUrl,
@@ -95,7 +109,6 @@ if (-not $u) {
 
     Check-NewVersion -repoUrl $repoUrl -currentVersion $currentVersion -autoYes:$y
 }
-
 
 
 
@@ -139,6 +152,12 @@ if ($logFileFormat -eq "") {
 
 $logFileNameFormat = $logFileName+"."+$logFileFormat
 
+
+if ($l) {
+    $logFilePath = "$PSScriptRoot\$logFileNameFormat"
+    Invoke-Item -Path $logFilePath
+    exit
+}
 
 # Define template name
 $chromeREGULARtemplate = $config.chrome.template.templateFolderNameRegular
