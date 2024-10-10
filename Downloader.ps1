@@ -5,14 +5,14 @@
 )
 
 Clear-Host
-$currentVersion = "v1.0.2"
+$currentVersion = "v1.0.3"
 
 if ($h) {
-    Write-Host "Usage: .\Downloader.ps1 [-y] [-h]"
+    Write-Host "Usage: .\Downloader.ps1 [-y] [-u] [-h]"
     Write-Host ""
     Write-Host "Options:"
     Write-Host "  -y    Automatically starts the script without requiring a Y/n response if the script is outdated."
-    Write-Host "  -u    Updates the script to the latest version."
+    Write-Host "  -u    Updates the script to the latest version and restarts the script."
     Write-Host "  -h    Displays this help message."
     exit
 }
@@ -41,7 +41,9 @@ if ($u) {
         Write-Host "Replacing the current script with the latest version..."
         Copy-Item -Path $tempFile -Destination $MyInvocation.MyCommand.Definition -Force
 
-        Write-Host "The script has been updated."
+        Write-Host "The script has been updated. Running the latest version..."
+        & $MyInvocation.MyCommand.Definition
+        exit
     } else {
         Write-Host "You are already using the latest version of the script."
     }
