@@ -291,6 +291,8 @@ The script automatically installs the requirements file. This means you only hav
 
 `-u` Updates the script to the latest version and restarts the script.
 
+`-s` Starts the script. Combind with -u to start the script after updating. (-u -s)
+
 `-h` Displays the help message.
 
 ## Script Usage

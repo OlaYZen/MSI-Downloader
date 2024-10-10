@@ -1,18 +1,20 @@
 ﻿param (
     [switch]$y,
     [switch]$h,
-    [switch]$u
+    [switch]$u,
+    [switch]$s
 )
 
 Clear-Host
-$currentVersion = "v1.0.3"
+$currentVersion = "v1.0.4"
 
 if ($h) {
-    Write-Host "Usage: .\Downloader.ps1 [-y] [-u] [-h]"
+    Write-Host "Usage: .\Downloader.ps1 [-y] [-u] [-s] [-h]"
     Write-Host ""
     Write-Host "Options:"
     Write-Host "  -y    Automatically starts the script without requiring a Y/n response if the script is outdated."
     Write-Host "  -u    Updates the script to the latest version and restarts the script."
+    Write-Host "  -s    Starts the script. Combind with -u to start the script after updating. (-u -s)"
     Write-Host "  -h    Displays this help message."
     exit
 }
@@ -41,50 +43,57 @@ if ($u) {
         Write-Host "Replacing the current script with the latest version..."
         Copy-Item -Path $tempFile -Destination $MyInvocation.MyCommand.Definition -Force
 
-        Write-Host "The script has been updated. Running the latest version..."
-        & $MyInvocation.MyCommand.Definition
-        exit
+        if ($s -eq $true) {
+            Write-Host "The script has been updated. Running the latest version..."
+            & $MyInvocation.MyCommand.Definition
+            exit
+        }
     } else {
         Write-Host "You are already using the latest version of the script."
+        if ($s -eq $true) {
+            & $MyInvocation.MyCommand.Definition
+            exit
+        }
     }
     exit
 }
 
-function Check-NewVersion {
-    param (
-        [string]$repoUrl,
-        [string]$currentVersion,
-        [switch]$autoYes
-    )
+if (-not $u) {
+    function Check-NewVersion {
+        param (
+            [string]$repoUrl,
+            [string]$currentVersion,
+            [switch]$autoYes
+        )
 
-    try {
-        $apiUrl = "$repoUrl/releases/latest"
-        $response = Invoke-WebRequest -Uri $apiUrl -Headers $headers -UseBasicParsing
-        $latestRelease = $response.Content | ConvertFrom-Json
-        $latestVersion = $latestRelease.tag_name
+        try {
+            $apiUrl = "$repoUrl/releases/latest"
+            $latestRelease = $response.Content | ConvertFrom-Json
+            $latestVersion = $latestRelease.tag_name
 
-        if ($latestVersion -ne $currentVersion) {
-            Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
-            if ($autoYes) {
-                $userInput = "Y"
+            if ($latestVersion -ne $currentVersion) {
+                Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
+                if ($autoYes) {
+                    $userInput = "Y"
+                } else {
+                    $userInput = Read-Host "Do you want to start the script? (Y/n)"
+                }
+                if ($userInput -eq "Y" -or $userInput -eq "y" -or $userInput -eq "") {
+                } else {
+                    exit
+                }
             } else {
-                $userInput = Read-Host "Do you want to start the script? (Y/n)"
+                Write-Host "You are using the latest version of the script."
             }
-            if ($userInput -eq "Y" -or $userInput -eq "y" -or $userInput -eq "") {
-            } else {
-                exit
-            }
-        } else {
-            Write-Host "You are using the latest version of the script."
+        } catch {
+            Write-Host "Failed to check for a new version of the script. Please check your internet connection or the repository URL."
         }
-    } catch {
-        Write-Host "Failed to check for a new version of the script. Please check your internet connection or the repository URL."
     }
+
+    $repoUrl = "https://api.github.com/repos/OlaYZen/MSI-Downloader"
+
+    Check-NewVersion -repoUrl $repoUrl -currentVersion $currentVersion -autoYes:$y
 }
-
-$repoUrl = "https://api.github.com/repos/OlaYZen/MSI-Downloader"
-
-Check-NewVersion -repoUrl $repoUrl -currentVersion $currentVersion -autoYes:$y
 
 
 
