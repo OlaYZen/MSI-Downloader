@@ -27,6 +27,12 @@ if ($u) {
         $latestVersionUrl = $latestRelease.assets[0].browser_download_url
 
         $tempFile = "$env:TEMP\Downloader.ps1"
+        
+        # Delete any old Downloader.ps1 in the temp folder
+        if (Test-Path -Path $tempFile) {
+            Remove-Item -Path $tempFile -Force
+        }
+
         Invoke-WebRequest -Uri $latestVersionUrl -OutFile $tempFile
 
         Write-Host "Downloading the latest version of the script..."
