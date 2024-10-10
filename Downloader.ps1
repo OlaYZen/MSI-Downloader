@@ -1,16 +1,44 @@
 ﻿param (
     [switch]$y,
-    [switch]$h
+    [switch]$h,
+    [switch]$u
 )
 
 Clear-Host
+$currentVersion = "v1.0.2"
 
 if ($h) {
     Write-Host "Usage: .\Downloader.ps1 [-y] [-h]"
     Write-Host ""
     Write-Host "Options:"
-    Write-Host "  -h    Displays this help message."
     Write-Host "  -y    Automatically starts the script without requiring a Y/n response if the script is outdated."
+    Write-Host "  -u    Updates the script to the latest version."
+    Write-Host "  -h    Displays this help message."
+    exit
+}
+
+if ($u) {
+    $url = "https://api.github.com/repos/OlaYZen/MSI-Downloader/releases/latest"
+    $response = Invoke-WebRequest -Uri $url -Headers $headers -UseBasicParsing
+    $latestRelease = $response.Content | ConvertFrom-Json
+    $latestVersion = $latestRelease.tag_name
+    
+    if ($latestVersion -ne $currentVersion) {
+        $latestVersionUrl = $latestRelease.assets[0].browser_download_url
+
+        $tempFile = "$env:TEMP\Downloader.ps1"
+        Invoke-WebRequest -Uri $latestVersionUrl -OutFile $tempFile
+
+        Write-Host "Downloading the latest version of the script..."
+        Start-Sleep -Seconds 2
+
+        Write-Host "Replacing the current script with the latest version..."
+        Copy-Item -Path $tempFile -Destination $MyInvocation.MyCommand.Definition -Force
+
+        Write-Host "The script has been updated."
+    } else {
+        Write-Host "You are already using the latest version of the script."
+    }
     exit
 }
 
@@ -47,7 +75,6 @@ function Check-NewVersion {
 }
 
 $repoUrl = "https://api.github.com/repos/OlaYZen/MSI-Downloader"
-$currentVersion = "v1.0.1" 
 
 Check-NewVersion -repoUrl $repoUrl -currentVersion $currentVersion -autoYes:$y
 

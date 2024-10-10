@@ -289,6 +289,8 @@ The script automatically installs the requirements file. This means you only hav
 ## Arguments
 `-y` Automatically starts the script without requiring a Y/n response if the script is outdated.
 
+`-u` Updates the script to the latest version.
+
 `-h` Displays the help message.
 
 ## Script Usage
