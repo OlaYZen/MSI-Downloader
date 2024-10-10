@@ -1,8 +1,24 @@
-﻿Clear-Host
+﻿param (
+    [switch]$y,
+    [switch]$h
+)
+
+Clear-Host
+
+if ($h) {
+    Write-Host "Usage: .\Downloader.ps1 [-y] [-h]"
+    Write-Host ""
+    Write-Host "Options:"
+    Write-Host "  -h    Displays this help message."
+    Write-Host "  -y    Automatically starts the script without requiring a Y/n response if the script is outdated."
+    exit
+}
+
 function Check-NewVersion {
     param (
         [string]$repoUrl,
-        [string]$currentVersion
+        [string]$currentVersion,
+        [switch]$autoYes
     )
 
     try {
@@ -13,11 +29,15 @@ function Check-NewVersion {
 
         if ($latestVersion -ne $currentVersion) {
             Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
-        $userInput = Read-Host "Do you want to start the script? (Y/n)"
-        if ($userInput -eq "Y" -or $userInput -eq "y" -or $userInput -eq "") {
-        } else {
-            exit
-        }
+            if ($autoYes) {
+                $userInput = "Y"
+            } else {
+                $userInput = Read-Host "Do you want to start the script? (Y/n)"
+            }
+            if ($userInput -eq "Y" -or $userInput -eq "y" -or $userInput -eq "") {
+            } else {
+                exit
+            }
         } else {
             Write-Host "You are using the latest version of the script."
         }
@@ -27,9 +47,9 @@ function Check-NewVersion {
 }
 
 $repoUrl = "https://api.github.com/repos/OlaYZen/MSI-Downloader"
-$currentVersion = "v1.0.0" 
+$currentVersion = "v1.0.1" 
 
-Check-NewVersion -repoUrl $repoUrl -currentVersion $currentVersion
+Check-NewVersion -repoUrl $repoUrl -currentVersion $currentVersion -autoYes:$y
 
 
 

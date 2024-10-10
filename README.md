@@ -286,6 +286,11 @@ The Dell config requires python because they block any script that tries to fetc
 
 The script automatically installs the requirements file. This means you only have to install python manually.
 
+## Arguments
+`-y` Automatically starts the script without requiring a Y/n response if the script is outdated.
+
+`-h` Displays the help message.
+
 ## Script Usage
 ### 1. Prepare the Environment:
 
@@ -316,8 +321,8 @@ This command will clone the repository into your current directory.
 
 - Open PowerShell and navigate to the directory containing the script and config.json.
 - Execute the script:
-```css
-& '.\Downloader.ps1' 
+```ps1
+.\Downloader.ps1
 ```
 
 ### 4. Monitor the Logs:
