@@ -68,6 +68,7 @@ if (-not $u) {
 
         try {
             $apiUrl = "$repoUrl/releases/latest"
+            $response = Invoke-WebRequest -Uri $apiUrl -Headers $headers -UseBasicParsing
             $latestRelease = $response.Content | ConvertFrom-Json
             $latestVersion = $latestRelease.tag_name
 
