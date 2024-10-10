@@ -10,6 +10,7 @@ This PowerShell script automates the process of downloading programs. You may th
 - Notepad++
 - VLC Media Player
 - Lenovo System Update
+- Dell Command | Update
 - Jabra Direct
 
 
@@ -145,6 +146,19 @@ The `config.json` file should be structured as follows:
         "templateFolderName": "Lenovo-System-Update-Template"
       }
   },
+  "DellCommandUpdate": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "Dell Command Update -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "Dell-Command-Update-Template"
+      }
+  },
   "JabraDirect": {
     "options": {
       "download": false,
@@ -165,8 +179,7 @@ The `config.json` file should be structured as follows:
     "clearLogs": false
   },
   "license": false,
-  "debug": false,
-  "old": false
+  "debug": false
 }
 ```
 #### Options:
@@ -202,7 +215,7 @@ The `config.json` file should be structured as follows:
 
 - `debug`: A boolean flag to enable/disable debug mode. When enabled, additional debug information will be logged to help with troubleshooting.
 
-- `old`: A boolean flag to enable or disable the use of the .Old folder for storing previous versions of downloaded applications.
+
 
 ### Date Configuration
 ---
@@ -268,6 +281,11 @@ Chrome - 125.0.6422.113_force_update
 
 The `folderNumber` configuration requires administrative privileges because the only way to obtain the Chrome version number is by installing the MSI file and retrieving the version from the Windows registry.
 
+## Dell Command | Update
+The Dell config requires python because they block any script that tries to fetch their html file. The python script emulates a browser and fetches the latest download url. If you don't have Python installed. Install it manually. Recommended version is 3.12.4
+
+The script automatically installs the requirements file. This means you only have to install python manually.
+
 ## Script Usage
 ### 1. Prepare the Environment:
 
@@ -275,14 +293,10 @@ Ensure that `config.json` is present in the same directory as the script.
 Create the following template folders and populate them with necessary files:
 - `Template\Chrome-Template`
 - `Template\Chrome-Template-Forced`
-- `Template\Firefox-Template`
 - `Template\Amazon-Workspace-Template`
 - `Template\7-Zip-Template`
-- `Template\WinRAR-Template`
-- `Template\NotepadPlusPlus-Template`
 - `Template\VLC-Template`
-- `Template\Lenovo-System-Update-Template`
-- `Template\Jabra-Direct-Template`
+- `Template\WinRAR-Template`
 
 
 ### 2. Downloading the Script:

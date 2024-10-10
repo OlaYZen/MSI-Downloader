@@ -107,6 +107,19 @@
         "templateFolderName": "Lenovo-System-Update-Template"
       }
   },
+  "DellCommandUpdate": {
+    "options": {
+      "download": false,
+      "folderNumber": false,
+      "deleteExist": false,
+      "folderName": "Dell Command Update -",
+      "Prefix": "VERSION",
+      "specificURL": ""
+      },
+      "template": {
+        "templateFolderName": "Dell-Command-Update-Template"
+      }
+  },
   "JabraDirect": {
     "options": {
       "download": false,

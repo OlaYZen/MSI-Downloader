@@ -44,37 +44,66 @@ $logFileNameFormat = $logFileName+"."+$logFileFormat
 # Define template name
 $chromeREGULARtemplate = $config.chrome.template.templateFolderNameRegular
 $chromeFORCEDtemplate = $config.chrome.template.templateFolderNameForced
+$Firefoxtemplate = $config.Firefox.template.templateFolderName
 $WORKSPACEStemplate = $config.amazonWorkspace.template.templateFolderName
 $7ZIPtemplate = $config.SevenZip.template.templateFolderName
-$VLCtemplate = $config.VLC.template.templateFolderName
 $WinRARtemplate = $config.WinRAR.template.templateFolderName
-$Firefoxtemplate = $config.Firefox.template.templateFolderName
-$LenovoSystemUpdateTemplate = $config.LenovoSystemUpdate.template.templateFolderName
-$JabraDirectTemplate = $config.JabraDirect.template.templateFolderName
 $NotepadPlusPlusTemplate = $config.NotepadPlusPlus.template.templateFolderName
+$VLCtemplate = $config.VLC.template.templateFolderName
+$LenovoSystemUpdateTemplate = $config.LenovoSystemUpdate.template.templateFolderName
+$DellCommandUpdateTemplate = $config.DellCommandUpdate.template.templateFolderName
+$JabraDirectTemplate = $config.JabraDirect.template.templateFolderName
 
 # Define prefix and suffix
 $CHROMEprefix = $config.chrome.options.Prefix
 $ChromeFORCEDsuffix = $config.chrome.options.forcedSuffix
+$Firefoxprefix = $config.Firefox.options.Prefix
 $WORKSPACESprefix = $config.amazonWorkspace.options.Prefix
 $7ZIPprefix = $config.SevenZip.options.Prefix
-$VLCprefix = $config.VLC.options.Prefix
 $WinRARprefix = $config.WinRAR.options.Prefix
-$Firefoxprefix = $config.Firefox.options.Prefix
-$LenovoSystemUpdatePrefix = $config.LenovoSystemUpdate.options.Prefix
-$JabraDirectPrefix = $config.JabraDirect.options.Prefix
 $NotepadPlusPlusPrefix = $config.NotepadPlusPlus.options.Prefix
+$VLCprefix = $config.VLC.options.Prefix
+$LenovoSystemUpdatePrefix = $config.LenovoSystemUpdate.options.Prefix
+$DellCommandUpdatePrefix = $config.DellCommandUpdate.options.Prefix
+$JabraDirectPrefix = $config.JabraDirect.options.Prefix
 
 # Define folder names
 $chromeNaming = $config.chrome.options.folderName
+$FirefoxNaming = $config.Firefox.options.folderName
 $workspacesNaming = $config.amazonWorkspace.options.folderName
 $7ZipNaming = $config.SevenZip.options.folderName
-$VLCNaming = $config.VLC.options.folderName
 $WinRARNaming = $config.WinRAR.options.folderName
-$FirefoxNaming = $config.Firefox.options.folderName
-$LenovoSystemUpdateNaming = $config.LenovoSystemUpdate.options.folderName
-$JabraDirectNaming = $config.JabraDirect.options.folderName
 $NotepadPlusPlusNaming = $config.NotepadPlusPlus.options.folderName
+$VLCNaming = $config.VLC.options.folderName
+$LenovoSystemUpdateNaming = $config.LenovoSystemUpdate.options.folderName
+$DellCommandUpdateNaming = $config.DellCommandUpdate.options.folderName
+$JabraDirectNaming = $config.JabraDirect.options.folderName
+
+# Define source and destination folders
+$sourceFolderRegular = "$PSScriptRoot\Template\$chromeREGULARtemplate"
+$sourceFolderForced = "$PSScriptRoot\Template\$chromeFORCEDtemplate"
+$FirefoxsourceFolderRegular = "$PSScriptRoot\Template\$Firefoxtemplate"
+$amazonworkspacesourceFolderRegular = "$PSScriptRoot\Template\$WORKSPACEStemplate"
+$7ZipsourceFolderRegular = "$PSScriptRoot\Template\$7ZIPtemplate"
+$WinRARsourceFolderRegular = "$PSScriptRoot\Template\$WinRARtemplate"
+$NotepadPlusPlusSourceFolderRegular = "$PSScriptRoot\Template\$NotepadPlusPlusTemplate"
+$VLCsourceFolderRegular = "$PSScriptRoot\Template\$VLCtemplate"
+$LenovoSystemUpdateSourceFolderRegular = "$PSScriptRoot\Template\$LenovoSystemUpdateTemplate"
+$DellCommandUpdateSourceFolderRegular = "$PSScriptRoot\Template\$DellCommandUpdateTemplate\Template"
+$DellCommandUpdateSource = "$PSScriptRoot\Template\$DellCommandUpdateTemplate"
+$JabraDirectSourceFolderRegular = "$PSScriptRoot\Template\$JabraDirectTemplate"
+
+$destinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming $CHROMEprefix"
+$forceUpdateFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming $CHROMEprefix$ChromeFORCEDsuffix"
+$FirefoxdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$FirefoxNaming $Firefoxprefix"
+$amazonworkspacedestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$workspacesNaming $WORKSPACESprefix"
+$7ZipdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$7ZipNaming $7ZIPprefix"
+$WinRARdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$WinRARNaming $WinRARprefix"
+$NotepadPlusPlusDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$NotepadPlusPlusNaming $NotepadPlusPlusPrefix"
+$VLCdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$VLCNaming $VLCprefix"
+$LenovoSystemUpdateDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$LenovoSystemUpdateNaming $LenovoSystemUpdatePrefix"
+$DellCommandUpdateDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$DellCommandUpdateNaming $DellCommandUpdatePrefix"
+$JabraDirectDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$JabraDirectNaming $JabraDirectPrefix"
 
 
 if ($config.logging.clearLogs) {
@@ -97,14 +126,15 @@ function Log_Message {
 Log_Message "Info: Script started"
 $apps = @(
     @{ name = "chrome"; download = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced; deleteExist = $config.chrome.options.deleteExist; naming = $chromeNaming },
+    @{ name = "Firefox"; download = $config.Firefox.options.download; deleteExist = $config.Firefox.options.deleteExist; naming = $FirefoxNaming },
     @{ name = "amazonWorkspace"; download = $config.amazonWorkspace.options.download; deleteExist = $config.amazonWorkspace.options.deleteExist; naming = $workspacesNaming },
     @{ name = "SevenZip"; download = $config.SevenZip.options.download; deleteExist = $config.SevenZip.options.deleteExist; naming = $7ZipNaming },
-    @{ name = "VLC"; download = $config.VLC.options.download; deleteExist = $config.VLC.options.deleteExist; naming = $VLCNaming },
     @{ name = "WinRAR"; download = $config.WinRAR.options.download; deleteExist = $config.WinRAR.options.deleteExist; naming = $WinRARNaming },
-    @{ name = "Firefox"; download = $config.Firefox.options.download; deleteExist = $config.Firefox.options.deleteExist; naming = $FirefoxNaming },
+    @{ name = "NotepadPlusPlus"; download = $config.NotepadPlusPlus.options.download; deleteExist = $config.NotepadPlusPlus.options.deleteExist; naming = $NotepadPlusPlusNaming },
+    @{ name = "VLC"; download = $config.VLC.options.download; deleteExist = $config.VLC.options.deleteExist; naming = $VLCNaming },
     @{ name = "LenovoSystemUpdate"; download = $config.LenovoSystemUpdate.options.download; deleteExist = $config.LenovoSystemUpdate.options.deleteExist; naming = $LenovoSystemUpdateNaming },
-    @{ name = "JabraDirect"; download = $config.JabraDirect.options.download; deleteExist = $config.JabraDirect.options.deleteExist; naming = $JabraDirectNaming },
-    @{ name = "NotepadPlusPlus"; download = $config.NotepadPlusPlus.options.download; deleteExist = $config.NotepadPlusPlus.options.deleteExist; naming = $NotepadPlusPlusNaming }
+    @{ name = "DellCommandUpdate"; download = $config.DellCommandUpdate.options.download; deleteExist = $config.DellCommandUpdate.options.deleteExist; naming = $DellCommandUpdateNaming },
+    @{ name = "JabraDirect"; download = $config.JabraDirect.options.download; deleteExist = $config.JabraDirect.options.deleteExist; naming = $JabraDirectNaming }
 )
 
 foreach ($app in $apps) {
@@ -149,6 +179,40 @@ if ($config.chrome.options.downloadRegular){
     if ($config.debug -eq $true) {Log_Message "Debug: `"Chrome 32-bit`" URL set to `"$chrome32BitUrl`""}
 }
 
+if ($config.Firefox.options.download){
+    # Firefox URL
+    if ($config.Firefox.options.specificURL -eq "") {
+        # Define the initial URL
+        $FirefoxInitialUrl = "https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US"
+
+        # Create a new HttpWebRequest object for the initial URL
+        $FirefoxHttpRequest = [System.Net.HttpWebRequest]::Create($FirefoxInitialUrl)
+        $FirefoxHttpRequest.Method = "HEAD"
+        $FirefoxHttpRequest.AllowAutoRedirect = $false
+
+        # Get the response to capture the redirect location
+        $FirefoxResponse = $FirefoxHttpRequest.GetResponse()
+        $FirefoxRedirectUrl = $FirefoxResponse.GetResponseHeader("Location")
+
+        # Follow the redirect to get the final URL
+        $FirefoxHttpRequest = [System.Net.HttpWebRequest]::Create($FirefoxRedirectUrl)
+        $FirefoxHttpRequest.Method = "HEAD"
+        $FirefoxResponse = $FirefoxHttpRequest.GetResponse()
+        $FirefoxFinalUrl = $FirefoxResponse.ResponseUri.AbsoluteUri
+
+        # Extract the final file name from the URL and replace %20 with a space
+        $FirefoxFileName = [System.IO.Path]::GetFileName($FirefoxFinalUrl) -replace '%20', ' '
+
+        $Firefox64BitUrl = $FirefoxFinalUrl
+        $Firefox64BitUrlClean = $FirefoxFileName
+
+    }
+    else {
+        $Firefox64BitUrl = $config.Firefox.options.specificURL
+    }
+    if ($config.debug -eq $true) {Log_Message "Debug: `"Firefox`" URL set to `"$Firefox64BitUrl`""}
+}
+
 if ($config.amazonWorkspace.options.download){
     # AmazonWorkspaces URL
     if ($config.amazonWorkspace.options.specificURL -eq "") {
@@ -160,8 +224,6 @@ if ($config.amazonWorkspace.options.download){
     }
     if ($config.debug -eq $true) {Log_Message "Debug: `"Amazon Workspaces`" URL set to `"$amazonworkspace64BitUrl`""}
 }
-
-
 
 if ($config.SevenZip.options.download){
     # 7-Zip URL
@@ -204,47 +266,6 @@ if ($config.SevenZip.options.download){
 
     }
     if ($config.debug -eq $true) {Log_Message "Debug: `"7-Zip`" URL set to `"$7Zip64BitUrl`""}
-}
-
-if ($config.VLC.options.download){
-    # VLC URL
-    if ($config.VLC.options.specificURL -eq "") {
-        # Define the URL
-        $vlcurl = "https://download.videolan.org/pub/videolan/vlc/last/win64/"
-
-        # Download the HTML content of the page
-        $vlcresponse = Invoke-WebRequest -Uri $vlcurl -UseBasicParsing  -Headers $headers
-
-        # Use regex to find the first win64.exe link
-        $vlcexeLink = $vlcresponse.Content -match 'href="([^"]*win64\.exe)"' | Out-Null; $vlcexeLink = $matches[1]
-
-        # If a matching link was found, print it out
-        if ($vlcexeLink) {
-        # Check if the link is a relative URL
-        if ($vlcexeLink -notmatch "^http") {
-        # Get the base URL from the original request
-        $vlcbaseUri = [uri]::new($vlcurl)
-        $vlcexeLink = [uri]::new($vlcbaseUri, $vlcexeLink).AbsoluteUri
-        }
-
-        # Extract the file name from the URL
-        $vlcfileName = [System.IO.Path]::GetFileName($vlcexeLink)
-
-        } else {
-            Log_Message "Error: VLC URL not found."
-        }
-
-        $VLC64BitUrl = $vlcexeLink
-        $VLC64BitUrlClean = $vlcfileName
-    }
-    else {
-        $VLC64BitUrl = $config.VLC.options.specificURL
-
-        # Extract the file number from the URL
-        $VLC64BitUrlClean = $config.VLC.options.specificURL -replace '^https:\/\/www\.7-zip\.org\/a\/', ''
-
-    }
-    if ($config.debug -eq $true) {Log_Message "Debug: `"VLC`" URL set to `"$VLC64BitUrl`""}
 }
 
 if ($config.WinRAR.options.download){
@@ -290,86 +311,6 @@ if ($config.WinRAR.options.download){
     if ($config.debug -eq $true) {Log_Message "Debug: `"WinRAR`" URL set to `"$winrar64BitUrl`""}
 }
 
-if ($config.Firefox.options.download){
-    # Firefox URL
-    if ($config.Firefox.options.specificURL -eq "") {
-        # Define the initial URL
-        $FirefoxInitialUrl = "https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US"
-
-        # Create a new HttpWebRequest object for the initial URL
-        $FirefoxHttpRequest = [System.Net.HttpWebRequest]::Create($FirefoxInitialUrl)
-        $FirefoxHttpRequest.Method = "HEAD"
-        $FirefoxHttpRequest.AllowAutoRedirect = $false
-
-        # Get the response to capture the redirect location
-        $FirefoxResponse = $FirefoxHttpRequest.GetResponse()
-        $FirefoxRedirectUrl = $FirefoxResponse.GetResponseHeader("Location")
-
-        # Follow the redirect to get the final URL
-        $FirefoxHttpRequest = [System.Net.HttpWebRequest]::Create($FirefoxRedirectUrl)
-        $FirefoxHttpRequest.Method = "HEAD"
-        $FirefoxResponse = $FirefoxHttpRequest.GetResponse()
-        $FirefoxFinalUrl = $FirefoxResponse.ResponseUri.AbsoluteUri
-
-        # Extract the final file name from the URL and replace %20 with a space
-        $FirefoxFileName = [System.IO.Path]::GetFileName($FirefoxFinalUrl) -replace '%20', ' '
-
-        $Firefox64BitUrl = $FirefoxFinalUrl
-        $Firefox64BitUrlClean = $FirefoxFileName
-
-    }
-    else {
-        $Firefox64BitUrl = $config.Firefox.options.specificURL
-    }
-    if ($config.debug -eq $true) {Log_Message "Debug: `"Firefox`" URL set to `"$Firefox64BitUrl`""}
-}
-
-if ($config.LenovoSystemUpdate.options.download){
-    # LenovoSystemUpdate URL
-    if ($config.LenovoSystemUpdate.options.specificURL -eq "") {
-    # Fetch the HTML content from the website
-    $LenovoSystemUpdateurl = "https://pcsupport.lenovo.com/no/nb/products/laptops-and-netbooks/thinkpad-l-series-laptops/thinkpad-l14-gen-2-type-20x1-20x2/20x1/20x100glmx/pf3pdw07/downloads/ds012808-lenovo-system-update-for-windows-10-7-32-bit-64-bit-desktop-notebook-workstation?Products=LAPTOPS-AND-NETBOOKS%2FTHINKPAD-L-SERIES-LAPTOPS%2FTHINKPAD-L14-GEN-2-TYPE-20X1-20X2%2F20X1%2F20X100GLMX%2FPF3PDW07"
-    $LenovoSystemUpdateresponse = Invoke-WebRequest -Uri $LenovoSystemUpdateurl
-
-    # Convert the response content (HTML) into a string that can be searched
-    $LenovoSystemUpdatehtmlContent = $LenovoSystemUpdateresponse.Content
-
-    # Define a regex pattern to search for the system_update_*.exe files
-    $LenovoSystemUpdateexePattern = "system_update_.*?\.exe"
-
-    # Use regex to find all matches for system_update_*.exe in the HTML content
-    $LenovoSystemUpdateMatches = [regex]::Matches($LenovoSystemUpdatehtmlContent, $LenovoSystemUpdateexePattern)
-
-    # Check if any matches were found and display them
-    if ($LenovoSystemUpdatematches.Count -gt 0) {
-        foreach ($LenovoSystemUpdatematch in $LenovoSystemUpdatematches) {
-            $LenovoSystemUpdate64BitUrl = "https://download.lenovo.com/pccbbs/thinkvantage_en/$($LenovoSystemUpdatematch.Value)"
-            $LenovoSystemUpdate64BitUrlClean = $LenovoSystemUpdatematch.Value
-        }
-    } else {
-            Write-Host "No system_update_*.exe file found in the HTML content."
-        }
-
-
-    }
-    else {
-        $LenovoSystemUpdate64BitUrl = $config.LenovoSystemUpdate.options.specificURL
-    }
-    if ($config.debug -eq $true) {Log_Message "Debug: `"Lenovo System Update`" URL set to `"$LenovoSystemUpdate64BitUrl`""}
-}
-
-if ($config.JabraDirect.options.download){
-    # Jabra Direct URL
-    if ($config.JabraDirect.options.specificURL -eq "") {
-        $JabraDirect64BitUrl = "https://jabraxpressonlineprdstor.blob.core.windows.net/jdo/JabraDirectSetup.exe"
-        $JabraDirect64BitUrlClean = "JabraDirectSetup.exe"
-    }
-    else {
-        $JabraDirect64BitUrl = $config.JabraDirect.options.specificURL
-    }
-    if ($config.debug -eq $true) {Log_Message "Debug: `"Jabra Direct`" URL set to `"$JabraDirect64BitUrl`""}
-}
-
 if ($config.NotepadPlusPlus.options.download){
     # NotepadPlusPlus URL
     if ($config.NotepadPlusPlus.options.specificURL -eq "") {
@@ -406,30 +347,152 @@ if ($config.NotepadPlusPlus.options.download){
 }
 
 
-# Define source and destination folders
-$sourceFolderRegular = "$PSScriptRoot\Template\$chromeREGULARtemplate"
-$sourceFolderForced = "$PSScriptRoot\Template\$chromeFORCEDtemplate"
-$amazonworkspacesourceFolderRegular = "$PSScriptRoot\Template\$WORKSPACEStemplate"
-$7ZipsourceFolderRegular = "$PSScriptRoot\Template\$7ZIPtemplate"
-$VLCsourceFolderRegular = "$PSScriptRoot\Template\$VLCtemplate"
-$WinRARsourceFolderRegular = "$PSScriptRoot\Template\$WinRARtemplate"
-$FirefoxsourceFolderRegular = "$PSScriptRoot\Template\$Firefoxtemplate"
-$LenovoSystemUpdateSourceFolderRegular = "$PSScriptRoot\Template\$LenovoSystemUpdateTemplate"
-$JabraDirectSourceFolderRegular = "$PSScriptRoot\Template\$JabraDirectTemplate"
-$NotepadPlusPlusSourceFolderRegular = "$PSScriptRoot\Template\$NotepadPlusPlusTemplate"
+if ($config.VLC.options.download){
+    # VLC URL
+    if ($config.VLC.options.specificURL -eq "") {
+        # Define the URL
+        $vlcurl = "https://download.videolan.org/pub/videolan/vlc/last/win64/"
 
-$destinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming $CHROMEprefix"
-$forceUpdateFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming $CHROMEprefix$ChromeFORCEDsuffix"
-$amazonworkspacedestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$workspacesNaming $WORKSPACESprefix"
-$7ZipdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$7ZipNaming $7ZIPprefix"
-$VLCdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$VLCNaming $VLCprefix"
-$WinRARdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$WinRARNaming $WinRARprefix"
-$FirefoxdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$FirefoxNaming $Firefoxprefix"
-$LenovoSystemUpdateDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$LenovoSystemUpdateNaming $LenovoSystemUpdatePrefix"
-$JabraDirectDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$JabraDirectNaming $JabraDirectPrefix"
-$NotepadPlusPlusDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$NotepadPlusPlusNaming $NotepadPlusPlusPrefix"
+        # Download the HTML content of the page
+        $vlcresponse = Invoke-WebRequest -Uri $vlcurl -UseBasicParsing  -Headers $headers
+
+        # Use regex to find the first win64.exe link
+        $vlcexeLink = $vlcresponse.Content -match 'href="([^"]*win64\.exe)"' | Out-Null; $vlcexeLink = $matches[1]
+
+        # If a matching link was found, print it out
+        if ($vlcexeLink) {
+        # Check if the link is a relative URL
+        if ($vlcexeLink -notmatch "^http") {
+        # Get the base URL from the original request
+        $vlcbaseUri = [uri]::new($vlcurl)
+        $vlcexeLink = [uri]::new($vlcbaseUri, $vlcexeLink).AbsoluteUri
+        }
+
+        # Extract the file name from the URL
+        $vlcfileName = [System.IO.Path]::GetFileName($vlcexeLink)
+
+        } else {
+            Log_Message "Error: VLC URL not found."
+        }
+
+        $VLC64BitUrl = $vlcexeLink
+        $VLC64BitUrlClean = $vlcfileName
+    }
+    else {
+        $VLC64BitUrl = $config.VLC.options.specificURL
+
+        # Extract the file number from the URL
+        $VLC64BitUrlClean = $config.VLC.options.specificURL -replace '^https:\/\/www\.7-zip\.org\/a\/', ''
+
+    }
+    if ($config.debug -eq $true) {Log_Message "Debug: `"VLC`" URL set to `"$VLC64BitUrl`""}
+}
+
+if ($config.LenovoSystemUpdate.options.download){
+    # LenovoSystemUpdate URL
+    if ($config.LenovoSystemUpdate.options.specificURL -eq "") {
+    # Fetch the HTML content from the website
+    $LenovoSystemUpdateurl = "https://pcsupport.lenovo.com/no/nb/products/laptops-and-netbooks/thinkpad-l-series-laptops/thinkpad-l14-gen-2-type-20x1-20x2/20x1/20x100glmx/pf3pdw07/downloads/ds012808-lenovo-system-update-for-windows-10-7-32-bit-64-bit-desktop-notebook-workstation?Products=LAPTOPS-AND-NETBOOKS%2FTHINKPAD-L-SERIES-LAPTOPS%2FTHINKPAD-L14-GEN-2-TYPE-20X1-20X2%2F20X1%2F20X100GLMX%2FPF3PDW07"
+    $LenovoSystemUpdateresponse = Invoke-WebRequest -Uri $LenovoSystemUpdateurl
+
+    # Convert the response content (HTML) into a string that can be searched
+    $LenovoSystemUpdatehtmlContent = $LenovoSystemUpdateresponse.Content
+
+    # Define a regex pattern to search for the system_update_*.exe files
+    $LenovoSystemUpdateexePattern = "system_update_.*?\.exe"
+
+    # Use regex to find all matches for system_update_*.exe in the HTML content
+    $LenovoSystemUpdateMatches = [regex]::Matches($LenovoSystemUpdatehtmlContent, $LenovoSystemUpdateexePattern)
+
+    # Check if any matches were found and display them
+    if ($LenovoSystemUpdatematches.Count -gt 0) {
+        foreach ($LenovoSystemUpdatematch in $LenovoSystemUpdatematches) {
+            $LenovoSystemUpdate64BitUrl = "https://download.lenovo.com/pccbbs/thinkvantage_en/$($LenovoSystemUpdatematch.Value)"
+            $LenovoSystemUpdate64BitUrlClean = $LenovoSystemUpdatematch.Value
+        }
+    } else {
+            Write-Host "No system_update_*.exe file found in the HTML content."
+        }
 
 
+    }
+    else {
+        $LenovoSystemUpdate64BitUrl = $config.LenovoSystemUpdate.options.specificURL
+    }
+    if ($config.debug -eq $true) {Log_Message "Debug: `"Lenovo System Update`" URL set to `"$LenovoSystemUpdate64BitUrl`""}
+}
+
+if ($config.DellCommandUpdate.options.download){
+
+
+    # Remove the dell.txt file if it exists
+    $dellTxtPath = "$DellCommandUpdateSource\dell.txt"
+    if (Test-Path $dellTxtPath) {
+        Remove-Item $dellTxtPath -Force
+    }
+    
+    # Check if Python is installed
+    $pythonInstalled = Get-Command python -ErrorAction SilentlyContinue
+
+    if (-not $pythonInstalled) {
+        Log_Message "Error: Python is not installed. The script will be stopped."
+        exit
+    }
+
+    # Path to the requirements.txt file
+    $requirementsPath = "$DellCommandUpdateSource\requirements.txt"
+
+    # Install the requirements using pip
+    $requirementsInstalled = & python -m pip list | Select-String -Pattern "requests|selenium|beautifulsoup4|webdriver-manager"
+
+    if ($requirementsInstalled) {
+    } else {
+        try {
+            & python -m pip install -r $requirementsPath
+        } catch {
+            Log_Message "Error: Failed to install requirements from requirements.txt. $_"
+            exit
+        }
+    }
+
+    # Path to the Python script
+    $pythonScriptPath = "$DellCommandUpdateSource\dell.py"
+
+    # Start the Python script
+    try {
+        $process = Start-Process -FilePath "python" -ArgumentList $pythonScriptPath -NoNewWindow -Wait -PassThru
+        if ($process.ExitCode -eq 0) {
+        } else {
+            Log_Message "Error: Python script dell.py failed with exit code $($process.ExitCode)"
+            exit
+        }
+    } catch {
+        Log_Message "Error: Failed to start the Python script dell.py. $_"
+        exit
+    }
+
+    # Dell Command Update URL
+    if ($config.DellCommandUpdate.options.specificURL -eq "") {
+        $DellCommandUpdate64BitUrl = Get-Content -Path "$DellCommandUpdateSource\dell.txt" -Raw
+        $DellCommandUpdate64BitUrlClean = [System.IO.Path]::GetFileName($DellCommandUpdate64BitUrl)
+    }
+    else {
+        $DellCommandUpdate64BitUrl = $config.DellCommandUpdate.options.specificURL
+    }
+    if ($config.debug -eq $true) {Log_Message "Debug: `"Dell Command Update`" URL set to `"$DellCommandUpdate64BitUrl`""}
+}
+
+if ($config.JabraDirect.options.download){
+    # Jabra Direct URL
+    if ($config.JabraDirect.options.specificURL -eq "") {
+        $JabraDirect64BitUrl = "https://jabraxpressonlineprdstor.blob.core.windows.net/jdo/JabraDirectSetup.exe"
+        $JabraDirect64BitUrlClean = "JabraDirectSetup.exe"
+    }
+    else {
+        $JabraDirect64BitUrl = $config.JabraDirect.options.specificURL
+    }
+    if ($config.debug -eq $true) {Log_Message "Debug: `"Jabra Direct`" URL set to `"$JabraDirect64BitUrl`""}
+}
 
 # Conditional execution based on config
 if ($config.chrome.options.downloadRegular) {
@@ -566,23 +629,24 @@ function DownloadInstaller {
     try {
         if ($config.debug -eq $true) {Log_Message "Debug: Started downloading `"$fileName`" from `"$url`""}
         else {Log_Message "Info: Started downloading `"$fileName`""}
-        Invoke-RestMethod -Uri $url -OutFile $filePath -ErrorAction Stop
+        Invoke-RestMethod -Uri $url -OutFile $filePath -ErrorAction Stop -Headers $headers
         Log_Message "Info: Download complete, `"$fileName`" successfully downloaded to `"$filePath`""
     } catch {
         Log_Message "Error: Download failed - $_"
     }
 }
 
-function CreateInstallCmd {
+function CreateCmd {
     param (
         [string]$destinationFolder,
-        [string]$content
+        [string]$content,
+        [string]$fileName
     )
     try {
-        Set-Content -Path "$destinationFolder\install.cmd" -Value $content
-        Log_Message "Info: install.cmd successfully created in `"$destinationFolder`""
+        Set-Content -Path "$destinationFolder\$fileName" -Value $content
+        Log_Message "Info: $fileName successfully created in `"$destinationFolder`""
     } catch {
-        Log_Message "Error: Failed to create install.cmd - $_"
+        Log_Message "Error: Failed to create $fileName - $_"
     }
 }
 
@@ -612,6 +676,17 @@ function MoveFolder {
     }
 }
 
+if ($config.Firefox.options.download) {
+    CreateFolder -folderPath $FirefoxdestinationFolder -logMessage "$FirefoxNaming $Firefoxprefix"
+    CopyTemplate -sourceFolder $FirefoxsourceFolderRegular -destinationFolder $FirefoxdestinationFolder
+    CreateCmd -destinationFolder $FirefoxdestinationFolder -content "`"%~dp0$Firefox64BitUrlClean`" /q /norestart `nif not exist `"C:\Program Files\Mozilla Firefox\distribution\`" mkdir `"C:\Program Files\Mozilla Firefox\distribution\`" `nxcopy `"%~dp0policies.json`" `"C:\Program Files\Mozilla Firefox\distribution\`" /y /s" -fileName "install.cmd"
+    DownloadInstaller -url $Firefox64BitUrl -destinationFolder $FirefoxdestinationFolder
+    # Replace %20 with spaces in the file name
+    $firefoxFileName = [System.IO.Path]::GetFileName($Firefox64BitUrl).Replace('%20', ' ')
+    Rename-Item -Path (Join-Path -Path $FirefoxdestinationFolder -ChildPath ([System.IO.Path]::GetFileName($Firefox64BitUrl))) -NewName $firefoxFileName
+    Log_Message "Info: Firefox file renamed to `"$firefoxFileName`""
+}
+
 if ($config.amazonWorkspace.options.download) {
     CreateFolder -folderPath $amazonworkspacedestinationFolder -logMessage "$workspacesNaming $WORKSPACESprefix"
     CopyTemplate -sourceFolder $amazonworkspacesourceFolderRegular -destinationFolder $amazonworkspacedestinationFolder
@@ -622,40 +697,44 @@ if ($config.amazonWorkspace.options.download) {
 if ($config.SevenZip.options.download) {
     CreateFolder -folderPath $7ZipdestinationFolder -logMessage "$7ZipNaming $7ZIPprefix"
     CopyTemplate -sourceFolder $7ZipsourceFolderRegular -destinationFolder $7ZipdestinationFolder
-    CreateInstallCmd -destinationFolder $7ZipdestinationFolder -content "`"%~dp0$7Zip64BitUrlClean`" /q ALLUSERS=1 REBOOT=ReallySuppress"
+    CreateCmd -destinationFolder $7ZipdestinationFolder -content "`"%~dp0$7Zip64BitUrlClean`" /q ALLUSERS=1 REBOOT=ReallySuppress" -fileName "install.cmd"
     DownloadInstaller -url $7Zip64BitUrl -destinationFolder $7ZipdestinationFolder
-}
-
-if ($config.VLC.options.download) {
-    CreateFolder -folderPath $VLCdestinationFolder -logMessage "$VLCNaming $VLCprefix"
-    CopyTemplate -sourceFolder $VLCsourceFolderRegular -destinationFolder $VLCdestinationFolder
-    CreateInstallCmd -destinationFolder $VLCdestinationFolder -content "`"%~dp0$VLC64BitUrlClean`" /q ALLUSERS=1 REBOOT=ReallySuppress"
-    DownloadInstaller -url $VLC64BitUrl -destinationFolder $VLCdestinationFolder
 }
 
 if ($config.WinRAR.options.download) {
     CreateFolder -folderPath $WinRARdestinationFolder -logMessage "$WinRARNaming $WinRARprefix"
     CopyTemplate -sourceFolder $WinRARsourceFolderRegular -destinationFolder $WinRARdestinationFolder
-    CreateInstallCmd -destinationFolder $WinRARdestinationFolder -content "`"%~dp0$WinRAR64BitUrlClean`" /q ALLUSERS=1 REBOOT=ReallySuppress"
+    CreateCmd -destinationFolder $WinRARdestinationFolder -content "`"%~dp0$WinRAR64BitUrlClean`" /q ALLUSERS=1 REBOOT=ReallySuppress" -fileName "install.cmd"
     DownloadInstaller -url $WinRAR64BitUrl -destinationFolder $WinRARdestinationFolder
 }
 
-if ($config.Firefox.options.download) {
-    CreateFolder -folderPath $FirefoxdestinationFolder -logMessage "$FirefoxNaming $Firefoxprefix"
-    CopyTemplate -sourceFolder $FirefoxsourceFolderRegular -destinationFolder $FirefoxdestinationFolder
-    CreateInstallCmd -destinationFolder $FirefoxdestinationFolder -content "`"%~dp0$Firefox64BitUrlClean`" /q /norestart `nif not exist `"C:\Program Files\Mozilla Firefox\distribution\`" mkdir `"C:\Program Files\Mozilla Firefox\distribution\`" `nxcopy `"%~dp0policies.json`" `"C:\Program Files\Mozilla Firefox\distribution\`" /y /s"
-    DownloadInstaller -url $Firefox64BitUrl -destinationFolder $FirefoxdestinationFolder
-    # Replace %20 with spaces in the file name
-    $firefoxFileName = [System.IO.Path]::GetFileName($Firefox64BitUrl).Replace('%20', ' ')
-    Rename-Item -Path (Join-Path -Path $FirefoxdestinationFolder -ChildPath ([System.IO.Path]::GetFileName($Firefox64BitUrl))) -NewName $firefoxFileName
-    Log_Message "Info: Firefox file renamed to `"$firefoxFileName`""
+if ($config.NotepadPlusPlus.options.download) {
+    CreateFolder -folderPath $NotepadPlusPlusDestinationFolder -logMessage "$NotepadPlusPlusNaming $NotepadPlusPlusPrefix"
+    CopyTemplate -sourceFolder $NotepadPlusPlussourceFolderRegular -destinationFolder $NotepadPlusPlusDestinationFolder
+    CreateCmd -destinationFolder $NotepadPlusPlusDestinationFolder -content "taskkill /F /IM notepad++.exe`n`"%~dp0$NotepadPlusPlus64BitUrlClean`" /S" -fileName "install.cmd"
+    DownloadInstaller -url $NotepadPlusPlus64BitUrl -destinationFolder $NotepadPlusPlusDestinationFolder
+}
+
+if ($config.VLC.options.download) {
+    CreateFolder -folderPath $VLCdestinationFolder -logMessage "$VLCNaming $VLCprefix"
+    CopyTemplate -sourceFolder $VLCsourceFolderRegular -destinationFolder $VLCdestinationFolder
+    CreateCmd -destinationFolder $VLCdestinationFolder -content "`"%~dp0$VLC64BitUrlClean`" /q ALLUSERS=1 REBOOT=ReallySuppress" -fileName "install.cmd"
+    DownloadInstaller -url $VLC64BitUrl -destinationFolder $VLCdestinationFolder
 }
 
 if ($config.LenovoSystemUpdate.options.download) {
     CreateFolder -folderPath $LenovoSystemUpdateDestinationFolder -logMessage "$LenovoSystemUpdateNaming $LenovoSystemUpdateprefix"
     CopyTemplate -sourceFolder $LenovoSystemUpdatesourceFolderRegular -destinationFolder $LenovoSystemUpdateDestinationFolder
-    CreateInstallCmd -destinationFolder $LenovoSystemUpdateDestinationFolder -content "`"%~dp0$LenovoSystemUpdate64BitUrlClean`" /verysilent /norestart /suppressmsgboxes /sp-"
+    CreateCmd -destinationFolder $LenovoSystemUpdateDestinationFolder -content "`"%~dp0$LenovoSystemUpdate64BitUrlClean`" /verysilent /norestart /suppressmsgboxes /sp-" -fileName "install.cmd"
     DownloadInstaller -url $LenovoSystemUpdate64BitUrl -destinationFolder $LenovoSystemUpdateDestinationFolder
+}
+
+if ($config.DellCommandUpdate.options.download) {
+    CreateFolder -folderPath $DellCommandUpdateDestinationFolder -logMessage "$DellCommandUpdateNaming $DellCommandUpdatePrefix"
+    CopyTemplate -sourceFolder $DellCommandUpdatesourceFolderRegular -destinationFolder $DellCommandUpdateDestinationFolder
+    CreateCmd -destinationFolder $DellCommandUpdateDestinationFolder -content "`"%~dp0$DellCommandUpdate64BitUrlClean`" /S`nping localhost -n 5 >NUL`nexit" -fileName "install.cmd"
+    CreateCmd -destinationFolder $DellCommandUpdateDestinationFolder -content "`"C:\Program Files\Dell\CommandUpdate\dcu-cli.exe`" /applyUpdates -silent" -fileName "run.cmd"
+    DownloadInstaller -url $DellCommandUpdate64BitUrl -destinationFolder $DellCommandUpdateDestinationFolder
 }
 
 if ($config.JabraDirect.options.download) {
@@ -665,15 +744,9 @@ if ($config.JabraDirect.options.download) {
     MoveFolder -sourceFolder $JabraDirectDestinationFolder -file $JabraDirect64BitUrlClean
 }
 
-if ($config.NotepadPlusPlus.options.download) {
-    CreateFolder -folderPath $NotepadPlusPlusDestinationFolder -logMessage "$NotepadPlusPlusNaming $NotepadPlusPlusPrefix"
-    CopyTemplate -sourceFolder $NotepadPlusPlussourceFolderRegular -destinationFolder $NotepadPlusPlusDestinationFolder
-    CreateInstallCmd -destinationFolder $NotepadPlusPlusDestinationFolder -content "taskkill /F /IM notepad++.exe`n`"%~dp0$NotepadPlusPlus64BitUrlClean`" /S"
-    DownloadInstaller -url $NotepadPlusPlus64BitUrl -destinationFolder $NotepadPlusPlusDestinationFolder
-}
+$CheckerFolder = $config.chrome.options.folderNumber -or $config.Firefox.options.folderNumber -or $config.amazonWorkspace.options.folderNumber -or $config.SevenZip.options.folderNumber -or $config.WinRAR.options.folderNumber -or $config.NotepadPlusPlus.options.folderNumber -or $config.VLC.options.folderNumber -or $config.LenovoSystemUpdate.options.folderNumber -or $config.DellCommandUpdate.options.folderNumber -or $config.JabraDirect.options.folderNumber 
 
-
-if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.folderNumber -or $config.SevenZip.options.folderNumber -or $config.VLC.options.folderNumber -or $config.WinRAR.options.folderNumber -or $config.Firefox.options.folderNumber -or $config.LenovoSystemUpdate.options.folderNumber -or $config.JabraDirect.options.folderNumber -or $config.NotepadPlusPlus.options.folderNumber) {
+if ($CheckerFolder) {
 	# Check if the script is running with administrative privileges
 	if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
         Log_Message "Error: the config 'folderNumber' requires administrative privileges to run."
@@ -764,14 +837,15 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
             }
         }
         $appsToInstall = @(
+            @{ name = "Firefox"; config = $config.Firefox; msiPath = "$PSScriptRoot\$FirefoxNaming $Firefoxprefix\$Firefox64BitUrlClean"; installArgs = "/i `"$PSScriptRoot\$FirefoxNaming $Firefoxprefix\$Firefox64BitUrlClean`" /quiet /norestart" },
             @{ name = "Amazon Workspaces"; config = $config.amazonWorkspace; msiPath = "$PSScriptRoot\$workspacesNaming $WORKSPACESprefix\Files\Amazon+WorkSpaces.msi"; installArgs = "/i `"$PSScriptRoot\$workspacesNaming $WORKSPACESprefix\Files\Amazon+WorkSpaces.msi`" /quiet /norestart" },
             @{ name = "7-Zip"; config = $config.SevenZip; msiPath = "$PSScriptRoot\$7ZipNaming $7ZIPprefix\$7Zip64BitUrlClean"; installArgs = "/i `"$PSScriptRoot\$7ZipNaming $7ZIPprefix\$7Zip64BitUrlClean`" /quiet /norestart" },
-            @{ name = "VLC"; config = $config.VLC; msiPath = "$PSScriptRoot\$VLCNaming $VLCprefix\$VLC64BitUrlClean"; installArgs = "/S" },
             @{ name = "WinRAR"; config = $config.WinRAR; msiPath = "$PSScriptRoot\$WinRARNaming $WinRARprefix\$WinRAR64BitUrlClean"; installArgs = "/S" },
-            @{ name = "Firefox"; config = $config.Firefox; msiPath = "$PSScriptRoot\$FirefoxNaming $Firefoxprefix\$Firefox64BitUrlClean"; installArgs = "/i `"$PSScriptRoot\$FirefoxNaming $Firefoxprefix\$Firefox64BitUrlClean`" /quiet /norestart" },
+            @{ name = "Notepad++"; config = $config.NotepadPlusPlus; msiPath = "$PSScriptRoot\$NotepadPlusPlusNaming $NotepadPlusPlusprefix\$NotepadPlusPlus64BitUrlClean"; installArgs = "/S" },
+            @{ name = "VLC"; config = $config.VLC; msiPath = "$PSScriptRoot\$VLCNaming $VLCprefix\$VLC64BitUrlClean"; installArgs = "/S" },
             @{ name = "Lenovo System Update"; config = $config.LenovoSystemUpdate; msiPath = "$PSScriptRoot\$LenovoSystemUpdateNaming $LenovoSystemUpdateprefix\$LenovoSystemUpdate64BitUrlClean"; installArgs = "/SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART" },
-            @{ name = "Jabra Direct"; config = $config.JabraDirect; msiPath = "$PSScriptRoot\$JabraDirectNaming $JabraDirectprefix\Files\JabraDirectSetup.exe"; installArgs = "/install /quiet /norestart" },
-            @{ name = "Notepad++"; config = $config.NotepadPlusPlus; msiPath = "$PSScriptRoot\$NotepadPlusPlusNaming $NotepadPlusPlusprefix\$NotepadPlusPlus64BitUrlClean"; installArgs = "/S" }
+            @{ name = "Dell Command | Update"; config = $config.DellCommandUpdate; msiPath = "$PSScriptRoot\$DellCommandUpdateNaming $DellCommandUpdatePrefix\$DellCommandUpdate64BitUrlClean"; installArgs = "/S" },
+            @{ name = "Jabra Direct"; config = $config.JabraDirect; msiPath = "$PSScriptRoot\$JabraDirectNaming $JabraDirectprefix\Files\JabraDirectSetup.exe"; installArgs = "/install /quiet /norestart" }
         )
 
         foreach ($app in $appsToInstall) {
@@ -828,7 +902,10 @@ if ($config.chrome.options.folderNumber -or $config.amazonWorkspace.options.fold
 else {
     Write-Output "For additional logs, please refer to $PSScriptRoot\$logFileNameFormat"
 }
-$Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced -or $config.amazonWorkspace.options.download -or $config.SevenZip.options.download -or $config.VLC.options.download -or $config.WinRAR.options.download -or $config.Firefox.options.download -or $config.LenovoSystemUpdate.options.download -or $config.JabraDirect.options.download -or $config.NotepadPlusPlus.options.download
+$Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced -or $config.Firefox.options.download -or $config.amazonWorkspace.options.download -or $config.SevenZip.options.download -or $config.WinRAR.options.download -or $config.NotepadPlusPlus.options.download -or $config.VLC.options.download -or $config.LenovoSystemUpdate.options.download -or $config.DellCommandUpdate.options.download -or $config.JabraDirect.options.download 
+
+
+
 if ($config.old -eq $true -and $checker -eq $true) {
     $oldFolderPath = "$PSScriptRoot\.Old"
     if (Test-Path -Path $oldFolderPath) {
