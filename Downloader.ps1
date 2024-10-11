@@ -15,8 +15,70 @@
     [switch]$l
 )
 
+# Read configuration from JSON file
+$configPath = "$PSScriptRoot\config.json"
+$config = Get-Content -Path $configPath | ConvertFrom-Json
+
+# Define headers
+$headers = @{
+    "User-Agent"      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+    "Accept"          = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+    "Accept-Language" = "en-US,en;q=0.5"
+    "Accept-Encoding" = "gzip, deflate, br"
+    "Cache-Control"   = "no-cache"
+}
+
+if($config.license){
+    # Writes out the license to the end user
+    $copyrightUrl = "https://raw.githubusercontent.com/OlaYZen/MSI-Downloader/refs/heads/main/LICENSE"
+    $copyrightResponse = Invoke-WebRequest -Uri $copyrightUrl -Headers $headers
+    $copyrightContent = $copyrightResponse.Content
+    Write-Host $copyrightContent
+}
+
+# Get the date format from the configuration, or use the default format if not provided
+$dateFormat = $config.logging.logDateFormat
+if ( $dateFormat -eq "") {
+    $dateFormat = "dd'/'MM'/'yyyy HH:mm:ss"
+}
+
+# Function to log messages with the specified date format
+$logFileName = $config.logging.logName
+$logFileFormat = $config.logging.logFormat
+if ($logFileName -eq "") {
+    $logFileName = "Downloader"
+}
+if ($logFileFormat -eq "") {
+    $logFileFormat = "log"
+}
+
+$logFileNameFormat = $logFileName+"."+$logFileFormat
+
+if ($l) {
+    $logFilePath = "$PSScriptRoot\$logFileNameFormat"
+    Invoke-Item -Path $logFilePath
+    if ($config.debug -eq $true) {Log_Message "Debug: Opening the log file..."}
+    exit
+}
+
+if ($config.logging.clearLogs) {
+    # Construct the full path to the log file
+    $logFilePath = Join-Path -Path $PSScriptRoot -ChildPath $logFileNameFormat
+    # Clear the contents of the log file
+    Set-Content -Path $logFilePath -Value $null
+}
+
+function Log_Message {
+    param (
+    [string]$message
+)
+    $timestamp = Get-Date -Format $dateFormat
+    Write-Output "[$timestamp] - $message" | Out-File -Append -FilePath "$PSScriptRoot\$logFileNameFormat" -Encoding utf8
+
+}
+
 Clear-Host
-$currentVersion = "v1.0.4"
+$currentVersion = "v1.0.5"
 
 if ($h) {
     Write-Host "Usage: .\Downloader.ps1 [-y|-Yes] [-u|-Update] [-s|-Start] [-l|-Log] [-h|-Help]"
@@ -52,18 +114,22 @@ if ($u) {
         Invoke-WebRequest -Uri $latestVersionUrl -OutFile $tempFile
 
         Write-Host "Downloading the latest version of the script..."
+        if ($config.debug -eq $true) {Log_Message "Debug: Downloading the latest version of the script..."}
         Start-Sleep -Seconds 2
 
         Write-Host "Replacing the current script with the latest version..."
+        if ($config.debug -eq $true) {Log_Message "Debug: Replacing the current script with the latest version..."}
         Copy-Item -Path $tempFile -Destination $MyInvocation.MyCommand.Definition -Force
 
         if ($s -eq $true) {
             Write-Host "The script has been updated. Running the latest version..."
+            if ($config.debug -eq $true) {Log_Message "Debug: The script has been updated. Running the latest version..."}
             & $MyInvocation.MyCommand.Definition
             exit
         }
     } else {
         Write-Host "You are already using the latest version of the script."
+        if ($config.debug -eq $true) {Log_Message "Debug: You are already using the latest version of the script."}
         if ($s -eq $true) {
             & $MyInvocation.MyCommand.Definition
             exit
@@ -88,6 +154,7 @@ if (-not $u -and -not $l) {
 
             if ($latestVersion -ne $currentVersion) {
                 Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
+                if ($config.debug -eq $true) {Log_Message "Debug: The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."}
                 if ($autoYes) {
                     $userInput = "Y"
                 } else {
@@ -99,65 +166,17 @@ if (-not $u -and -not $l) {
                 }
             } else {
                 Write-Host "You are using the latest version of the script."
+                if ($config.debug -eq $true) {Log_Message "Debug: You are using the latest version of the script."}
             }
         } catch {
             Write-Host "Failed to check for a new version of the script. Please check your internet connection or the repository URL."
-        }
+            if ($config.debug -eq $true) {Log_Message "Debug: Failed to check for a new version of the script. Please check your internet connection or the repository URL."}
     }
+        $repoUrl = "https://api.github.com/repos/OlaYZen/MSI-Downloader"
 
-    $repoUrl = "https://api.github.com/repos/OlaYZen/MSI-Downloader"
-
-    Check-NewVersion -repoUrl $repoUrl -currentVersion $currentVersion -autoYes:$y
-}
-
-
-
-# Read configuration from JSON file
-$configPath = "$PSScriptRoot\config.json"
-$config = Get-Content -Path $configPath | ConvertFrom-Json
-
-# Define headers
-$headers = @{
-    "User-Agent"      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
-    "Accept"          = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
-    "Accept-Language" = "en-US,en;q=0.5"
-    "Accept-Encoding" = "gzip, deflate, br"
-    "Cache-Control"   = "no-cache"
-}
-
-
-if($config.license){
-    # Writes out the license to the end user
-    $copyrightUrl = "https://raw.githubusercontent.com/OlaYZen/MSI-Downloader/refs/heads/main/LICENSE"
-    $copyrightResponse = Invoke-WebRequest -Uri $copyrightUrl -Headers $headers
-    $copyrightContent = $copyrightResponse.Content
-    Write-Host $copyrightContent
-}
-
-# Get the date format from the configuration, or use the default format if not provided
-$dateFormat = $config.logging.logDateFormat
-if ( $dateFormat -eq "") {
-    $dateFormat = "dd'/'MM'/'yyyy HH:mm:ss"
-}
-
-# Function to log messages with the specified date format
-$logFileName = $config.logging.logName
-$logFileFormat = $config.logging.logFormat
-if ($logFileName -eq "") {
-    $logFileName = "Downloader"
-}
-if ($logFileFormat -eq "") {
-    $logFileFormat = "log"
-}
-
-$logFileNameFormat = $logFileName+"."+$logFileFormat
-
-
-if ($l) {
-    $logFilePath = "$PSScriptRoot\$logFileNameFormat"
-    Invoke-Item -Path $logFilePath
-    exit
-}
+        Check-NewVersion -repoUrl $repoUrl -currentVersion $currentVersion -autoYes:$y
+    }
+}   
 
 # Define template name
 $chromeREGULARtemplate = $config.chrome.template.templateFolderNameRegular
@@ -211,6 +230,7 @@ $DellCommandUpdateSourceFolderRegular = "$PSScriptRoot\Template\$DellCommandUpda
 $DellCommandUpdateSource = "$PSScriptRoot\Template\$DellCommandUpdateTemplate"
 $JabraDirectSourceFolderRegular = "$PSScriptRoot\Template\$JabraDirectTemplate"
 
+# Define destination folders
 $destinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming $CHROMEprefix"
 $forceUpdateFolder = Join-Path -Path $PSScriptRoot -ChildPath "$chromeNaming $CHROMEprefix$ChromeFORCEDsuffix"
 $FirefoxdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$FirefoxNaming $Firefoxprefix"
@@ -222,23 +242,6 @@ $VLCdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$VLCNaming $VL
 $LenovoSystemUpdateDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$LenovoSystemUpdateNaming $LenovoSystemUpdatePrefix"
 $DellCommandUpdateDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$DellCommandUpdateNaming $DellCommandUpdatePrefix"
 $JabraDirectDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$JabraDirectNaming $JabraDirectPrefix"
-
-
-if ($config.logging.clearLogs) {
-    # Construct the full path to the log file
-    $logFilePath = Join-Path -Path $PSScriptRoot -ChildPath $logFileNameFormat
-    # Clear the contents of the log file
-    Set-Content -Path $logFilePath -Value $null
-}
-
-function Log_Message {
-    param (
-    [string]$message
-)
-    $timestamp = Get-Date -Format $dateFormat
-    Write-Output "[$timestamp] - $message" | Out-File -Append -FilePath "$PSScriptRoot\$logFileNameFormat" -Encoding utf8
-
-}
 
 # Log the start of the script
 Log_Message "Info: Script started"
