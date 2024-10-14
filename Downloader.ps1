@@ -12,7 +12,13 @@
     [switch]$s,
 
     [Alias("Log")]
-    [switch]$l
+    [switch]$l,
+
+    [Alias("Config")]
+    [switch]$c,
+
+    [Alias("Version")]
+    [switch]$v
 )
 
 # Read configuration from JSON file
@@ -42,6 +48,15 @@ if ( $dateFormat -eq "") {
     $dateFormat = "dd'/'MM'/'yyyy HH:mm:ss"
 }
 
+function Log_Message {
+    param (
+    [string]$message
+)
+    $timestamp = Get-Date -Format $dateFormat
+    Write-Output "[$timestamp] - $message" | Out-File -Append -FilePath "$PSScriptRoot\$logFileNameFormat" -Encoding utf8
+
+}
+
 # Function to log messages with the specified date format
 $logFileName = $config.logging.logName
 $logFileFormat = $config.logging.logFormat
@@ -61,6 +76,13 @@ if ($l) {
     exit
 }
 
+if ($c) {
+    $configFilePath = "$PSScriptRoot\config.json"
+    Invoke-Item -Path $configFilePath
+    if ($config.debug -eq $true) {Log_Message "Debug: Opening the config file..."}
+    exit
+}
+
 if ($config.logging.clearLogs) {
     # Construct the full path to the log file
     $logFilePath = Join-Path -Path $PSScriptRoot -ChildPath $logFileNameFormat
@@ -68,30 +90,30 @@ if ($config.logging.clearLogs) {
     Set-Content -Path $logFilePath -Value $null
 }
 
-function Log_Message {
-    param (
-    [string]$message
-)
-    $timestamp = Get-Date -Format $dateFormat
-    Write-Output "[$timestamp] - $message" | Out-File -Append -FilePath "$PSScriptRoot\$logFileNameFormat" -Encoding utf8
-
-}
-
 Clear-Host
 $currentVersion = "v1.0.5"
 
+if ($v) {
+    Write-Host "Version: $currentVersion"
+    if ($config.debug -eq $true) {Log_Message "Debug: Version: $currentVersion"}
+    exit
+}
+
 if ($h) {
-    Write-Host "Usage: .\Downloader.ps1 [-y|-Yes] [-u|-Update] [-s|-Start] [-l|-Log] [-h|-Help]"
+    Write-Host "Usage: .\Downloader.ps1 [options]"
     Write-Host ""
-    Write-Host "Additional Options:"
-    Write-Host "  -y, -Yes       Automatically starts the script without requiring a Y/n response if the script is outdated."
+    Write-Host "Options:"
+    Write-Host "  -h, -Help         Displays this help message."
+    Write-Host "  -v, -Version      Displays the current version of the script."
     Write-Host ""
-    Write-Host "  -u, -Update    Updates the script to the latest version and restarts the script."
-    Write-Host "  -s, -Start     Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]"
+    Write-Host "Update Options:"
+    Write-Host "  -u, -Update       Updates the script to the latest version and restarts the script."
+    Write-Host "  -s, -Start        Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]"
+    Write-Host "  -y, -Yes          Automatically starts the script without requiring a Y/n response if the script is outdated."
     Write-Host ""
-    Write-Host "  -l, -Log       Opens the log file in the default text editor."
-    Write-Host ""
-    Write-Host "  -h, -Help      Displays this help message."
+    Write-Host "Other Options:"
+    Write-Host "  -l, -Log          Opens the log file in the default text editor."
+    Write-Host "  -c, -Config       Opens the config file in the default text editor."
     exit
 }
 
@@ -138,7 +160,7 @@ if ($u) {
     exit
 }
 
-if (-not $u -and -not $l) {
+if (-not $u -and -not $l -and -not $c -and -not $v) {
     function Check-NewVersion {
         param (
             [string]$repoUrl,
@@ -570,6 +592,7 @@ if ($config.DellCommandUpdate.options.download){
     } else {
         try {
             & python -m pip install -r $requirementsPath
+            if ($config.debug -eq $true) {Log_Message "Debug: Requirements installed from requirements.txt"}
         } catch {
             Log_Message "Error: Failed to install requirements from requirements.txt. $_"
             exit
