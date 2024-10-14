@@ -161,44 +161,46 @@ if ($u) {
 }
 
 if (-not $u -and -not $l -and -not $c -and -not $v) {
-    function Check-NewVersion {
-        param (
-            [string]$repoUrl,
-            [string]$currentVersion,
-            [switch]$autoYes
-        )
-
-        try {
-            $apiUrl = "$repoUrl/releases/latest"
-            $response = Invoke-WebRequest -Uri $apiUrl -Headers $headers -UseBasicParsing
-            $latestRelease = $response.Content | ConvertFrom-Json
-            $latestVersion = $latestRelease.tag_name
-
-            if ($latestVersion -ne $currentVersion) {
-                Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
-                if ($config.debug -eq $true) {Log_Message "Debug: The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."}
-                if ($autoYes) {
-                    $userInput = "Y"
+        function Check-NewVersion {
+            param (
+                [string]$repoUrl,
+                [string]$currentVersion,
+                [switch]$autoYes
+            )
+    
+            try {
+                $apiUrl = "$repoUrl/releases/latest"
+                $response = Invoke-WebRequest -Uri $apiUrl -Headers $headers
+                $latestRelease = $response.Content | ConvertFrom-Json
+                $latestVersion = $latestRelease.tag_name
+    
+                if ($latestVersion -ne $currentVersion) {
+                    Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
+                    if ($config.debug) { Log_Message "Debug: The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader." }
+                    
+                    if ($autoYes) {
+                        $userInput = "Y"
+                    } else {
+                        $userInput = Read-Host "Do you want to start the script? (Y/n)"
+                    }
+                    
+                    if ($userInput -notin @("Y", "y", "")) {
+                        exit
+                    }
                 } else {
-                    $userInput = Read-Host "Do you want to start the script? (Y/n)"
+                    Write-Host "You are using the latest version of the script."
+                    if ($config.debug) { Log_Message "Debug: You are using the latest version of the script." }
                 }
-                if ($userInput -eq "Y" -or $userInput -eq "y" -or $userInput -eq "") {
-                } else {
-                    exit
-                }
-            } else {
-                Write-Host "You are using the latest version of the script."
-                if ($config.debug -eq $true) {Log_Message "Debug: You are using the latest version of the script."}
+            } catch {
+                Write-Host "Failed to check for a new version of the script. Please check your internet connection or the repository URL."
+                if ($config.debug) { Log_Message "Debug: Failed to check for a new version of the script. Please check your internet connection or the repository URL." }
             }
-        } catch {
-            Write-Host "Failed to check for a new version of the script. Please check your internet connection or the repository URL."
-            if ($config.debug -eq $true) {Log_Message "Debug: Failed to check for a new version of the script. Please check your internet connection or the repository URL."}
-    }
+        }
+    
         $repoUrl = "https://api.github.com/repos/OlaYZen/MSI-Downloader"
-
+    
         Check-NewVersion -repoUrl $repoUrl -currentVersion $currentVersion -autoYes:$y
     }
-}   
 
 # Define template name
 $chromeREGULARtemplate = $config.chrome.template.templateFolderNameRegular
