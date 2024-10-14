@@ -139,7 +139,13 @@
     "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
     "clearLogs": false
   },
-  "license": false,
+  "ntfy": {
+    "URL": "ttps://ntfy.yourdomain.com/your-topic",
+    "Title": "",
+    "Priority": "normal",
+    "Enabled": false
+  },
+  "license": true,
   "debug": false,
   "old": false
 }
