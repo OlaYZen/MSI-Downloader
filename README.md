@@ -17,12 +17,10 @@ This PowerShell script automates the process of downloading programs. You may th
 i might add more in the future. The script is written in PowerShell and is designed to be easy to use and configure. It does support EXE files, even though the name is misleading.
 
 ## Features
-- Automatically downloads and installs the specified program.
+- Automatically downloads and installs a specified program.
 - Automatically organizes the downloaded program into appropriate folders.
 - Automatically renames the folder to the newest version of the program.
 - Automatically deletes old versions of the program.
-- Supports downloading both 64-bit and 32-bit versions of the program. (Chrome only)
-- Supports downloading the regular version and the forced update version of the program. (Chrome only)
 - Support custom URLs for downloading the programs.
 - Easy to use and configure.
 - Supports logging.
@@ -276,7 +274,7 @@ Chrome - VERSION_force_update
 
 `true`:
 ```css
-Chrome - 125.0.6422.113_force_update
+Chrome - 129.0.6668.101_force_update
 ```
 
 The `folderNumber` configuration requires administrative privileges because the only way to obtain the Chrome version number is by installing the MSI file and retrieving the version from the Windows registry.
@@ -287,28 +285,25 @@ The Dell config requires python because they block any script that tries to fetc
 The script automatically installs the requirements file. This means you only have to install python manually.
 
 ## Arguments
-`-y` Automatically starts the script without requiring a Y/n response if the script is outdated.
+### Options:
+  `-h`, `-Help` Displays this help message.
 
-`-u` Updates the script to the latest version and restarts the script.
+  `-v`, `-Version` Displays the current version of the script.
 
-`-s` Starts the script. Combind with -u to start the script after updating. (-u -s)
+### Update Options:
+  `-u`, `-Update` Updates the script to the latest version and restarts the script.
 
-`-h` Displays the help message.
+  `-s`, `-Start` Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]
+
+  `-y`, `-Yes` Automatically starts the script without requiring a Y/n response if the script is outdated.
+
+### Other Options:
+  `-l`, `-Log` Opens the log file in the default text editor.
+
+  `-c`, `-Config` Opens the config file in the default text editor.
 
 ## Script Usage
-### 1. Prepare the Environment:
-
-Ensure that `config.json` is present in the same directory as the script.
-Create the following template folders and populate them with necessary files:
-- `Template\Chrome-Template`
-- `Template\Chrome-Template-Forced`
-- `Template\Amazon-Workspace-Template`
-- `Template\7-Zip-Template`
-- `Template\VLC-Template`
-- `Template\WinRAR-Template`
-
-
-### 2. Downloading the Script:
+### 1. Downloading the Script:
 
 You can download the script using `git clone` command. Follow these steps:
 
@@ -321,14 +316,13 @@ git clone https://github.com/OlaYZen/MSI-Downloader.git
 
 This command will clone the repository into your current directory.
 
-### 3. Run the Script:
+### 2. Run the Script:
 
 - Open PowerShell and navigate to the directory containing the script and config.json.
 - Execute the script:
 ```ps1
 .\Downloader.ps1
 ```
-
-### 4. Monitor the Logs:
+### 3. Monitor the Logs:
 
 - Check `Downloader.log` in the script directory for detailed logs of the execution process, including any errors encountered.
