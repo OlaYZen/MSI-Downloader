@@ -176,8 +176,9 @@ The `config.json` file should be structured as follows:
     "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
     "clearLogs": false
   },
-  "license": false,
-  "debug": false
+  "license": true,
+  "debug": false,
+  "old": false
 }
 ```
 #### Options:

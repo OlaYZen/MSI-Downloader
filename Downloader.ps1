@@ -11,6 +11,9 @@
     [Alias("Start")]
     [switch]$s,
 
+    [Alias("Force")]
+    [switch]$f,
+
     [Alias("Log")]
     [switch]$l,
 
@@ -32,14 +35,6 @@ $headers = @{
     "Accept-Language" = "en-US,en;q=0.5"
     "Accept-Encoding" = "gzip, deflate, br"
     "Cache-Control"   = "no-cache"
-}
-
-if($config.license){
-    # Writes out the license to the end user
-    $copyrightUrl = "https://raw.githubusercontent.com/OlaYZen/MSI-Downloader/refs/heads/main/LICENSE"
-    $copyrightResponse = Invoke-WebRequest -Uri $copyrightUrl -Headers $headers
-    $copyrightContent = $copyrightResponse.Content
-    Write-Host $copyrightContent
 }
 
 # Get the date format from the configuration, or use the default format if not provided
@@ -108,12 +103,13 @@ if ($h) {
     Write-Host ""
     Write-Host "Update Options:"
     Write-Host "  -u, -Update       Updates the script to the latest version and restarts the script."
+    Write-Host "  -f, -Force        Forces the script to update to the latest version."
     Write-Host "  -s, -Start        Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]"
     Write-Host "  -y, -Yes          Automatically starts the script without requiring a Y/n response if the script is outdated."
     Write-Host ""
     Write-Host "Other Options:"
-    Write-Host "  -l, -Log          Opens the log file in the default text editor."
     Write-Host "  -c, -Config       Opens the config file in the default text editor."
+    Write-Host "  -l, -Log          Opens the log file in the default text editor."
     exit
 }
 
@@ -122,8 +118,8 @@ if ($u) {
     $response = Invoke-WebRequest -Uri $url -Headers $headers -UseBasicParsing
     $latestRelease = $response.Content | ConvertFrom-Json
     $latestVersion = $latestRelease.tag_name
-    
-    if ($latestVersion -ne $currentVersion) {
+
+    if ($f -or $latestVersion -ne $currentVersion) {
         $latestVersionUrl = $latestRelease.assets[0].browser_download_url
 
         $tempFile = "$env:TEMP\Downloader.ps1"
@@ -137,7 +133,6 @@ if ($u) {
 
         Write-Host "Downloading the latest version of the script..."
         if ($config.debug -eq $true) {Log_Message "Debug: Downloading the latest version of the script..."}
-        Start-Sleep -Seconds 2
 
         Write-Host "Replacing the current script with the latest version..."
         if ($config.debug -eq $true) {Log_Message "Debug: Replacing the current script with the latest version..."}
@@ -194,6 +189,7 @@ if (-not $u -and -not $l -and -not $c -and -not $v) {
             } catch {
                 Write-Host "Failed to check for a new version of the script. Please check your internet connection or the repository URL."
                 if ($config.debug) { Log_Message "Debug: Failed to check for a new version of the script. Please check your internet connection or the repository URL." }
+                exit
             }
         }
     
@@ -294,7 +290,7 @@ foreach ($app in $apps) {
 
         foreach ($subfolder in $subfolders) {
             try {
-                Log_Message "Info: The Folder `"$subfolder\`" has been deleted."
+                if ($config.debug -eq $true) {Log_Message "Debug: The Folder `"$subfolder\`" has been deleted."}
             } catch {
                 Write-Host "Error: logging message: $_"
             }
@@ -641,6 +637,32 @@ if ($config.JabraDirect.options.download){
 }
 
 Clear-Host
+
+if ($config.license) {
+    # Writes out the license to the end user
+    $licensePath = Join-Path -Path $PSScriptRoot -ChildPath "LICENSE"
+    if (Test-Path -Path $licensePath) {
+        try {
+            $copyrightContent = Get-Content -Path $licensePath -Raw
+            Write-Host $copyrightContent
+            if ($config.debug -eq $true) {
+                Log_Message "Debug: Loaded license from local LICENSE file."
+            }
+        } catch {
+            Log_Message "Error: Failed to read local LICENSE file - $_"
+        }
+    } else {
+        try {
+            $copyrightUrl = "https://raw.githubusercontent.com/OlaYZen/MSI-Downloader/refs/heads/main/LICENSE"
+            $copyrightResponse = Invoke-WebRequest -Uri $copyrightUrl -Headers $headers -ErrorAction Stop
+            $copyrightContent = $copyrightResponse.Content
+            Write-Host $copyrightContent
+            Log_Message "Info: Loaded license from URL."
+        } catch {
+            Log_Message "Error: Failed to fetch license from URL - $_"
+        }
+    }
+}
 
 # Conditional execution based on config
 if ($config.chrome.options.downloadRegular) {
