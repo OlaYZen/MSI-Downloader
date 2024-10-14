@@ -21,7 +21,8 @@ i might add more in the future. The script is written in PowerShell and is desig
 - Automatically organizes the downloaded program into appropriate folders.
 - Automatically renames the folder to the newest version of the program.
 - Automatically deletes old versions of the program.
-- Support custom URLs for downloading the programs.
+- Supports timer intervals. 
+- Supports custom URLs for downloading the programs.
 - Easy to use and configure.
 - Supports logging.
 
@@ -285,11 +286,54 @@ The Dell config requires python because they block any script that tries to fetc
 
 The script automatically installs the requirements file. This means you only have to install python manually.
 
+## NTFY Integration
+
+The script includes integration with NTFY, a notification service that allows you to receive updates about the script's execution and any new versions detected. This feature can be particularly useful for monitoring the status of downloads and installations without needing to constantly check the logs.
+
+### Configuration
+
+To enable NTFY notifications, ensure that the following configuration options are set in your `config.json` file:
+
+```json
+"ntfy": {
+    "URL": "https://ntfy.yourdomain.com/your-topic",
+    "Title": "",
+    "Priority": "max",
+    "Enabled": true
+}
+```
+
+- **URL**: The endpoint for your NTFY notifications. Replace `https://ntfy.yourdomain.com/your-topic` with your actual NTFY URL.
+- **Title**: The title of the notification. This can be customized to reflect the nature of the notifications you want to receive. Leave it empty to let the script select the best titles
+- **Priority**: The priority level of the notification. Options include `max`, `high`, `normal`, `low`, and `min`.
+- **Enabled**: Set this to `true` to activate notifications. If set to `false`, notifications will be disabled.
+
+### Notification Triggers
+
+The script will send notifications in the following scenarios:
+
+- When a new version of a program is detected.
+- When a new version of the script is detected.
+- If any errors occur during the execution of the script, such as failed downloads or installations.
+
+### Example Notification
+
+When a new version is detected, you might receive a notification like this:
+
+```
+Title: NotepadPlusPlus - 8.7
+Message: New version of NotepadPlusPlus - 8.7 detected
+```
+
+This integration helps keep you informed about the script's activities and ensures you are aware of any important updates or issues that may arise during its execution.
+
 ## Arguments
 ### Options:
   `-h`, `-Help` Displays this help message.
 
   `-v`, `-Version` Displays the current version of the script.
+
+  `-t`, `-Timer` Sets a timer interval for script execution.
 
 ### Update Options:
   `-u`, `-Update` Updates the script to the latest version and restarts the script.
