@@ -328,24 +328,9 @@ Message: New version of NotepadPlusPlus - 8.7 detected
 This integration helps keep you informed about the script's activities and ensures you are aware of any important updates or issues that may arise during its execution.
 
 ## Arguments
-### Options:
-  `-h`, `-Help` Displays this help message.
-
-  `-v`, `-Version` Displays the current version of the script.
-
-  `-t`, `-Timer` Sets a timer interval for script execution.
-
-### Update Options:
-  `-u`, `-Update` Updates the script to the latest version and restarts the script.
-
-  `-s`, `-Start` Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]
-
-  `-y`, `-Yes` Automatically starts the script without requiring a Y/n response if the script is outdated.
-
-### Other Options:
-  `-l`, `-Log` Opens the log file in the default text editor.
-
-  `-c`, `-Config` Opens the config file in the default text editor.
+<p align="center">
+  <img src="./image.png" alt="Image-of-arguments" width="100%"/>
+</p>
 
 ## Script Usage
 ### 1. Downloading the Script:
