@@ -183,7 +183,9 @@ if (-not $u -and -not $l -and -not $c -and -not $v) {
                 if ($latestVersion -ne $currentVersion) {
                     Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
                     if ($config.debug) { Log_Message "Debug: The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader." }
-                    SendNTFY -title "Version Update | MSI-Downloader" -message "New version of MSI-Downloader detected. Version: $latestVersion"
+                    if (-not $y) {
+                        SendNTFY -title "Version Update | MSI-Downloader" -message "New version of MSI-Downloader detected. Version: $latestVersion"
+                    }
                     if ($autoYes) {
                         $userInput = "Y"
                     } else {
