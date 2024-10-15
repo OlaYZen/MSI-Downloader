@@ -64,15 +64,19 @@ if ($c) {
     exit
 }
 
-if ($config.logging.clearLogs) {
-    # Construct the full path to the log file
+function Clear-Logs {
     $logFilePath = Join-Path -Path $PSScriptRoot -ChildPath $logFileNameFormat
-    # Clear the contents of the log file
     Set-Content -Path $logFilePath -Value $null
 }
 
+if ($config.logging.clearLogs) {
+    Clear-Logs
+}
+
+
+
 Clear-Host
-$currentVersion = "v1.1.0"
+$currentVersion = "v1.1.1"
 
 if ($v) {
     Write-Host "Version: $currentVersion"
@@ -86,13 +90,13 @@ if ($h) {
     Write-Host "Options:"
     Write-Host "  -h, -Help         Displays this help message."
     Write-Host "  -v, -Version      Displays the current version of the script."
+    Write-Host "  -y, -Yes          Automatically starts the script without requiring a Y/n response if the script is outdated."
     Write-Host "  -t, -Timer        Sets a timer interval for script execution."
     Write-Host ""
     Write-Host "Update Options:"
     Write-Host "  -u, -Update       Updates the script to the latest version and restarts the script."
     Write-Host "  -f, -Force        Forces the script to update to the latest version."
     Write-Host "  -s, -Start        Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]"
-    Write-Host "  -y, -Yes          Automatically starts the script without requiring a Y/n response if the script is outdated."
     Write-Host ""
     Write-Host "Other Options:"
     Write-Host "  -c, -Config       Opens the config file in the default text editor."
@@ -101,7 +105,6 @@ if ($h) {
 }
 
 function sendNTFY {
-    
     param (
         [string]$title,
         [string]$message
@@ -117,7 +120,13 @@ function sendNTFY {
                 }
                 Body = $message
             }
-            Invoke-RestMethod @Request >> null
+            if ($config.debug -eq $true) {
+                $response = Invoke-RestMethod @Request
+                Log_Message "Debug: $response"
+            }
+            else {
+                Invoke-RestMethod @Request >> $null
+            }
         } catch {
             Log_Message "Warn: Failed to send NTFY notification - $_"
         }
@@ -275,6 +284,9 @@ $VLCdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$VLCNaming $VL
 $LenovoSystemUpdateDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$LenovoSystemUpdateNaming $LenovoSystemUpdatePrefix"
 $DellCommandUpdateDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$DellCommandUpdateNaming $DellCommandUpdatePrefix"
 $JabraDirectDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$JabraDirectNaming $JabraDirectPrefix"
+
+$Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced -or $config.Firefox.options.download -or $config.amazonWorkspace.options.download -or $config.SevenZip.options.download -or $config.WinRAR.options.download -or $config.NotepadPlusPlus.options.download -or $config.VLC.options.download -or $config.LenovoSystemUpdate.options.download -or $config.DellCommandUpdate.options.down
+
 function runScript {
 
 # Log the start of the script
@@ -293,24 +305,49 @@ $apps = @(
 )
 
 foreach ($app in $apps) {
-    if ($app.download -and $app.deleteExist) {
-        $testPath = "$PSScriptRoot\$($app.naming) *"
-        $subfolders = @()
-
-        if (Test-Path $testPath) {
-            $subfolders = Get-ChildItem -Path $testPath -Directory | ForEach-Object { $_.FullName }
-            Remove-Item $testPath -Recurse -Force
-        }
-
-        foreach ($subfolder in $subfolders) {
-            try {
-                if ($config.debug -eq $true) {Log_Message "Debug: The Folder `"$subfolder\`" has been deleted."}
-            } catch {
-                Write-Host "Warn: logging message: $_"
+    if ($config.old -eq $true -and $Checker -eq $true){
+        if ($app.download -and $app.deleteExist) {
+            $testPath = "$PSScriptRoot\$($app.naming) *"
+            $subfolders = @()
+    
+            if (Test-Path $testPath) {
+                $subfolders = Get-ChildItem -Path $testPath -Directory | ForEach-Object { $_.FullName }
+                Move-Item -Path $testPath -Destination "$PSScriptRoot\.Old"
+            }
+            else {
+                Remove-Item -Path $testPath -Recurse -Force
+            }
+    
+            foreach ($subfolder in $subfolders) {
+                try {
+                    if ($config.debug -eq $true) {Log_Message "Debug: The Folder `"$subfolder\`" has been moved to `.Old`."}
+                } catch {
+                    Write-Host "Warn: logging message: $_"
+                }
             }
         }
     }
+    else {
+        if ($app.download -and $app.deleteExist) {
+            $testPath = "$PSScriptRoot\$($app.naming) *"
+            $subfolderz = @()
+    
+            if (Test-Path $testPath) {
+                $subfolderz = Get-ChildItem -Path $testPath -Directory | ForEach-Object { $_.FullName }
+                Remove-Item $testPath -Recurse -Force
+            }
+    
+            foreach ($subfolder in $subfolderz) {
+                try {
+                    if ($config.debug -eq $true) {Log_Message "Debug: The Folder `"$subfolder\`" has been deleted."}
+                } catch {
+                    Write-Host "Warn: logging message: $_"
+                }
+            }
+        }
+    }   
 }
+
 # Define URLs
 if ($config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced){
     # Chrome 64-bit URL
@@ -680,7 +717,6 @@ if ($config.license) {
 
 # Conditional execution based on config
 if ($config.chrome.options.downloadRegular) {
-    # Create main folder and files folder if they don't exist
     $folderName = "$chromeNaming $CHROMEprefix"
     $folderPath = Join-Path -Path $PSScriptRoot -ChildPath $folderName
     $filesFolder = Join-Path -Path $folderPath -ChildPath "Files"
@@ -695,7 +731,6 @@ if ($config.chrome.options.downloadRegular) {
         }
     }
 
-    # Copy items from source folder to destination folder
     try {
         Copy-Item -Path $sourceFolderRegular\* -Destination $destinationFolder -Recurse -Force -ErrorAction Stop
         Log_Message "Info: Regular Template successfully copied to `"$destinationFolder`""
@@ -1113,9 +1148,6 @@ if ($CheckerFolder) {
 else {
     Write-Output "For additional logs, please refer to $PSScriptRoot\$logFileNameFormat"
 }
-$Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced -or $config.Firefox.options.download -or $config.amazonWorkspace.options.download -or $config.SevenZip.options.download -or $config.WinRAR.options.download -or $config.NotepadPlusPlus.options.download -or $config.VLC.options.download -or $config.LenovoSystemUpdate.options.download -or $config.DellCommandUpdate.options.download -or $config.JabraDirect.options.download 
-
-
 
 if ($config.old -eq $true -and $checker -eq $true) {
     $oldFolderPath = "$PSScriptRoot\.Old"
@@ -1138,12 +1170,7 @@ if ($config.old -eq $true -and $checker -eq $true) {
             } else {
                 Log_Message "Info: New file detected `"$($folder.Name)`""
                 Write-Output "Info: New file detected `"$($folder.Name)`""
-
-                if ($config.ntfy.Enabled -eq $true) {
-
                 SendNTFY -title "$($folder.Name) | MSI-Downloader" -message "New version of $($folder.Name) detected"
-                }
-
             }
         }
     }
@@ -1164,30 +1191,33 @@ else {
 if ($t) {
     # Check if a time interval is provided
     if ($args.Count -eq 0) {
-        Write-Host "Please specify a time interval after -t (e.g., -t 30m)"
+        Write-Host "Please specify a time interval after -t (e.g., -t 2d 5h 15m 10s)"
         exit
     }
 
-    # Get the time interval argument
-    $intervalArg = $args[0]
+    $intervalSeconds = 0
 
-    # Parse the interval (e.g., 30m, 1h, 2d, 10s)
-    if ($intervalArg -match '^(\d+)([smhd])$') {
-        $value = [int]$matches[1]
-        $unit = $matches[2]
+    foreach ($intervalArg in $args) {
+        if ($intervalArg -match '^(\d+)([smhd])$') {
+            $value = [int]$matches[1]
+            $unit = $matches[2]
 
-        switch ($unit) {
-            's' { $intervalSeconds = $value }
-            'm' { $intervalSeconds = $value * 60 }
-            'h' { $intervalSeconds = $value * 3600 }
-            'd' { $intervalSeconds = $value * 86400 }
-            default {
-                Write-Host "Invalid time unit. Use s, m, h, or d."
-                exit
+            switch ($unit) {
+                's' { $intervalSeconds += $value }
+                'm' { $intervalSeconds += $value * 60 }
+                'h' { $intervalSeconds += $value * 3600 }
+                'd' { $intervalSeconds += $value * 86400 }
+                default {
+                    Write-Host "Invalid time unit. Use s, m, h, or d."
+                    exit
+                }
             }
+        } else {
+            Write-Host "Invalid interval format. Use number followed by s, m, h, or d (e.g., 2d 5h 15m 10s)."
+            exit
         }
+    }
 
-        # Run the script in an infinite loop with the specified interval
         while ($true) {
             runScript
 
@@ -1213,24 +1243,15 @@ if ($t) {
                 }
 
                 $countdown += "$seconds`s..."
-
                 Write-Host "Script will restart in $countdown"
                 Start-Sleep -Seconds 1
             }
 
             if ($config.logging.clearLogs) {
-                # Construct the full path to the log file
-                $logFilePath = Join-Path -Path $PSScriptRoot -ChildPath $logFileNameFormat
-                # Clear the contents of the log file
-                Set-Content -Path $logFilePath -Value $null
+                Clear-Logs
             }
-        }
     }
-    else {
-        Write-Host "Invalid interval format. Use number followed by s, m, h, or d (e.g., 30m)."
-        exit
-    }
-}
+} 
 else {
     runScript
 }

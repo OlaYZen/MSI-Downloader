@@ -1,6 +1,53 @@
 # MSI-Downloader
 
-This PowerShell script automates the process of downloading programs. You may think its like winget, but it's not. It's a script that automates the process of downloading and organizing installers based on specified configurations. It supports downloading both 64-bit and 32-bit version of Chrome and organizing them into appropriate folders. (64-bit only for the rest). The programs that are currently supported are:
+![MSI-Downloader Banner](./banner.png)
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Supported Programs](#supported-programs)
+- [Configuration](#configuration)
+  - [Configuration File Structure](#configuration-file-structure)
+  - [Options](#options)
+  - [Logging Options](#logging-options)
+  - [Optional Extras](#optional-extras)
+- [Date Configuration](#date-configuration)
+  - [Format Specifiers](#format-specifiers)
+  - [Examples](#examples)
+- [Numbered Versioning](#numbered-versioning)
+- [Dell Command | Update](#dell-command--update)
+- [NTFY Integration](#ntfy-integration)
+  - [Configuration](#configuration-1)
+  - [Notification Triggers](#notification-triggers)
+  - [Example Notification](#example-notification)
+- [Usage](#usage)
+  - [Installation](#installation)
+  - [Running the Script](#running-the-script)
+  - [Monitoring Logs](#monitoring-logs)
+- [Script Update](#script-update)
+- [Recommendations](#recommendations)
+- [License](#license)
+- [Contributing](#contributing)
+- [Contact](#contact)
+
+## Overview
+
+**MSI-Downloader** is a PowerShell script designed to automate the downloading and organization of various software installers based on customizable configurations. Unlike tools like `winget`, MSI-Downloader focuses on downloading both 64-bit versions of specific applications and organizing them into designated folders. The script is user-friendly, easily configurable, and supports EXE files despite its name suggesting MSI files.
+
+## Features
+
+- **Automated Downloads**: Downloads and installs specified programs automatically.
+- **Organized Storage**: Sorts downloaded programs into appropriate folders.
+- **Version Management**: Renames folders to reflect the newest version of each program and removes outdated versions.
+- **Customizable Intervals**: Supports timer intervals for scheduled operations.
+- **Custom URLs**: Allows specifying custom download URLs for programs.
+- **Logging**: Maintains detailed logs of all operations.
+- **User-Friendly Configuration**: Easily configurable via a JSON file.
+
+## Supported Programs
+
+Currently, MSI-Downloader supports the following applications:
 
 - Google Chrome
 - Firefox
@@ -13,31 +60,19 @@ This PowerShell script automates the process of downloading programs. You may th
 - Dell Command | Update
 - Jabra Direct
 
-
-i might add more in the future. The script is written in PowerShell and is designed to be easy to use and configure. It does support EXE files, even though the name is misleading.
-
-## Features
-- Automatically downloads and installs a specified program.
-- Automatically organizes the downloaded program into appropriate folders.
-- Automatically renames the folder to the newest version of the program.
-- Automatically deletes old versions of the program.
-- Supports timer intervals. 
-- Supports custom URLs for downloading the programs.
-- Easy to use and configure.
-- Supports logging.
-
-
-## Script Overview
+*Additional programs may be supported in future releases.*
 
 ## Configuration
 
-The script reads its configuration from a JSON file named config.json located in the same directory as the script. The configuration options include:
+MSI-Downloader utilizes a `config.json` file located in the same directory as the script to manage its settings. This file allows users to customize download options, folder structures, logging preferences, and more.
 
-### Configuration File
-The `config.json` file should be structured as follows:
+### Configuration File Structure
+
+Below is an example of the `config.json` structure:
+
 ```json
 {
-  "chrome":{
+  "chrome": {
     "options": {
       "downloadRegular": true,
       "downloadForced": false,
@@ -48,11 +83,11 @@ The `config.json` file should be structured as follows:
       "forcedSuffix": "_force_update",
       "specificURL64": "",
       "specificURL32": ""
-      },
-      "template": {
-        "templateFolderNameRegular": "Chrome-Template",
-        "templateFolderNameForced": "Chrome-Template-Forced"
-      }
+    },
+    "template": {
+      "templateFolderNameRegular": "Chrome-Template",
+      "templateFolderNameForced": "Chrome-Template-Forced"
+    }
   },
   "Firefox": {
     "options": {
@@ -62,297 +97,236 @@ The `config.json` file should be structured as follows:
       "folderName": "Firefox -",
       "Prefix": "VERSION",
       "specificURL": ""
-      },
-      "template": {
-        "templateFolderName": "Firefox-Template"
-      }
+    },
+    "template": {
+      "templateFolderName": "Firefox-Template"
+    }
   },
-  "amazonWorkspace":{
-    "options": {
-      "download": false,
-      "folderNumber": false,
-      "deleteExist": false,
-      "folderName": "Amazon Workspace -",
-      "Prefix": "VERSION",
-      "specificURL": ""
-      },
-      "template": {
-        "templateFolderName": "Amazon-Workspace-Template"
-      }
-  },
-  "SevenZip": {
-    "options": {
-      "download": false,
-      "folderNumber": false,
-      "deleteExist": false,
-      "folderName": "7-Zip -",
-      "Prefix": "VERSION",
-      "specificURL": ""
-      },
-      "template": {
-        "templateFolderName": "7-Zip-Template"
-      }
-  },
-  "WinRAR": {
-    "options": {
-      "download": false,
-      "folderNumber": false,
-      "deleteExist": false,
-      "folderName": "WinRAR -",
-      "Prefix": "VERSION",
-      "specificURL": ""
-      },
-      "template": {
-        "templateFolderName": "WinRAR-Template"
-      }
-  },
-  "NotepadPlusPlus": {
-    "options": {
-      "download": false,
-      "folderNumber": false,
-      "deleteExist": false,
-      "folderName": "NotepadPlusPlus -",
-      "Prefix": "VERSION",
-      "specificURL": ""
-      },
-      "template": {
-        "templateFolderName": "NotepadPlusPlus-Template"
-      }
-  },
-  "VLC": {
-    "options": {
-      "download": false,
-      "folderNumber": false,
-      "deleteExist": false,
-      "folderName": "VLC Media Player -",
-      "Prefix": "VERSION",
-      "specificURL": ""
-      },
-      "template": {
-        "templateFolderName": "VLC-Template"
-      }
-  },
-  "LenovoSystemUpdate": {
-    "options": {
-      "download": false,
-      "folderNumber": false,
-      "deleteExist": false,
-      "folderName": "Lenovo System Update -",
-      "Prefix": "VERSION",
-      "specificURL": ""
-      },
-      "template": {
-        "templateFolderName": "Lenovo-System-Update-Template"
-      }
-  },
-  "DellCommandUpdate": {
-    "options": {
-      "download": false,
-      "folderNumber": false,
-      "deleteExist": false,
-      "folderName": "Dell Command Update -",
-      "Prefix": "VERSION",
-      "specificURL": ""
-      },
-      "template": {
-        "templateFolderName": "Dell-Command-Update-Template"
-      }
-  },
-  "JabraDirect": {
-    "options": {
-      "download": false,
-      "folderNumber": false,
-      "deleteExist": false,
-      "folderName": "Jabra Direct -",
-      "Prefix": "VERSION",
-      "specificURL": ""
-      },
-      "template": {
-        "templateFolderName": "Jabra-Direct-Template"
-      }
-  },
+  // ... Additional program configurations ...
   "logging": {
     "logName": "Downloader",
     "logFormat": "log",
     "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
     "clearLogs": false
   },
+  "ntfy": {
+    "URL": "https://ntfy.yourdomain.com/your-topic",
+    "Title": "",
+    "Priority": "default",
+    "Enabled": false
+  },
   "license": true,
   "debug": false,
   "old": false
 }
 ```
-#### Options:
----
-##### Chrome Specific:
-- `downloadRegular`: A boolean flag to enable downloading and installing the regular version of Chrome.
-- `downloadForced`: A boolean flag to enable downloading and installing the forced update version of Chrome.
-- `forcedSuffix`: A string defining the suffix for the forced update version of Chrome. The default suffix is `_force_update`.
-- `spesificURL64`: A string defining custom URL for the 64-bit version of Chrome. Leave empty to use the default URL.
-- `spesificURL32`: A string defining custom URL for the 32-bit version of Chrome. Leave empty to use the default URL.
-- `templateFolderNameRegular`: A string defining the name of the regular GoogleChrome template folder name.
-- `templateFolderNameForced`: A string defining the name of the forced Google Chrome template folder name.
 
-##### Universal:
-- `download`: A boolean flag to enable downloading and installing the application.
-- `folderNumber`: A boolean flag to enable the automatic renaming of the folder to the newest version of the application. ⚠️ **This option requires administrative privileges when executing the script!** ⚠️
-- `deleteExist`: A boolean flag to delete old folders when the script is executed. ⚠️ **This action will delete your Chrome, AWS, 7-Zip, etc.. folders, so ensure you have backups if you wish to retain them.** ⚠️
-- `folderName`: A string defining the name of the folders. The default name is `Chrome -`,  `WorkSpaces -` etc..
-- `Prefix`: A String defining the prefix for the application version. The default prefix is `VERSION`.
-- `spesificURL`: A string defining custom URL for the application version. Leave empty to use the default URL.
-- `templateFolderName`: A string defining the name of application template folder name.
+### Options
 
-#### Logging options:
----
-- `logName`: A string defining the name of the log(s) file(s). The default name is `Downloader`.
-- `logFormat`: A string defining the format of the log(s) file(s). The default format is `log`.
-- `logDateFormat`: A string defining the format of timestamps in logs. The default format is `dd/MM/yyyy HH:mm:ss`.
-- `clearLogs`: A boolean flag to enable clearing of the log(s) file(s). This will clear the content inside of the log file(s).
+#### Chrome Specific
 
-#### Optional Extras
----
-- `license`: A boolean flag to enable/disable the MIT license showing on script start.
+- `downloadRegular` (bool): Enable downloading and installing the regular version of Chrome.
+- `downloadForced` (bool): Enable downloading and installing the forced update version of Chrome.
+- `forcedSuffix` (string): Suffix for the forced update version (default: `_force_update`).
+- `specificURL64` (string): Custom URL for the 64-bit version of Chrome. Leave empty for default.
+- `specificURL32` (string): Custom URL for the 32-bit version of Chrome. Leave empty for default.
+- `templateFolderNameRegular` (string): Name of the regular Chrome template folder.
+- `templateFolderNameForced` (string): Name of the forced Chrome template folder.
 
-- `debug`: A boolean flag to enable/disable debug mode. When enabled, additional debug information will be logged to help with troubleshooting.
+#### Universal
 
+- `download` (bool): Enable downloading and installing the application.
+- `folderNumber` (bool): Enable automatic renaming of the folder to the newest version. **Requires administrative privileges**.
+- `deleteExist` (bool): Delete existing folders upon script execution. **Caution: This will delete folders like Chrome, AWS, 7-Zip, etc. Ensure backups are in place if needed.**
+- `folderName` (string): Base name for folders (e.g., `Chrome -`, `WorkSpaces -`).
+- `Prefix` (string): Prefix for the application version (default: `VERSION`).
+- `specificURL` (string): Custom URL for the application version. Leave empty for default.
+- `templateFolderName` (string): Name of the application's template folder.
 
+### Logging Options
 
-### Date Configuration
----
+- `logName` (string): Name of the log file(s) (default: `Downloader`).
+- `logFormat` (string): Format of the log file(s) (default: `log`).
+- `logDateFormat` (string): Timestamp format in logs (default: `dd'/'MM'/'yyyy HH:mm:ss`).
+- `clearLogs` (bool): Enable clearing of log files' content on execution.
 
-##### `yyyy`: This specifier represents the year portion of the date. It uses four digits to represent the year. For example, 2024.
+### Optional Extras
 
-##### `MM`: This specifier represents the month portion of the date. It uses two digits to represent the month, with leading zeros if necessary. For example, 05 represents May.
+- `license` (bool): Display the MIT license upon script start.
+- `debug` (bool): Enable debug mode for additional troubleshooting information.
+- `old` (bool): Moves downloaded applications into the .Old folder. This can then be used to find out if a newer version of a program exists
 
-##### `dd`: This specifier represents the day portion of the date. It uses two digits to represent the day of the month, with leading zeros if necessary. For example, 23.
+## Date Configuration
 
-##### `HH`: This specifier represents the hour portion of the time in 24-hour format. It uses two digits to represent the hour, ranging from 00 to 23. For example, 14 represents 2 PM in 24-hour format.
+Customize timestamp formats using the following specifiers:
+
+| Specifier | Description |
+|-----------|-------------|
+| `yyyy`    | Four-digit year (e.g., 2024) |
+| `MM`      | Two-digit month with leading zeros (e.g., 05 for May) |
+| `dd`      | Two-digit day with leading zeros (e.g., 23) |
+| `HH`      | Two-digit 24-hour format hour (00-23) |
+| `hh`      | Two-digit 12-hour format hour (01-12) |
+| `mm`      | Two-digit minutes with leading zeros (e.g., 30) |
+| `ss`      | Two-digit seconds with leading zeros (e.g., 45) |
+| `fff`     | Three-digit milliseconds with leading zeros (e.g., 123) |
+| `tt`      | AM/PM designator for 12-hour format |
 
 <details>
-<summary><b>More info on HH format</b></summary>
-
-##### `HH` (24-hour format): When HH is used, it represents the hour portion of the time in a 24-hour format, where the hour is represented with two digits from 00 to 23. The HH specifier does not use AM/PM designators since it covers the full 24-hour range. Example: HH:mm:ss might output 14:30:00, representing 2:30 PM in 24-hour format.
-
-##### `hh` (12-hour format): When hh is used, it represents the hour portion of the time in a 12-hour format, where the hour is represented with one or two digits from 1 to 12. The hh specifier is typically used alongside the tt specifier (AM/PM designator) to indicate whether the time is in the AM or PM. Example: hh:mm:ss tt might output 02:30:00 PM, representing 2:30 PM.
+  <summary><strong>More on Hour Formats</strong></summary>
+  
+- **`HH` (24-hour format)**: Represents hours from 00 to 23 without AM/PM.
+  
+  *Example:* `14:30:00` represents 2:30 PM.
+  
+- **`hh` (12-hour format)**: Represents hours from 01 to 12 with AM/PM.
+  
+  *Example:* `02:30:00 PM` represents 2:30 PM.
 </details>
-
-
-
-##### `mm`: This specifier represents the minute portion of the time. It uses two digits to represent the minutes, with leading zeros if necessary. For example, 30.
-
-##### `ss`: This specifier represents the second portion of the time. It uses two digits to represent the seconds, with leading zeros if necessary. For example, 45.
-
-##### `fff`: This specifier represents the millisecond portion of the time. It uses three digits to represent the milliseconds, with leading zeros if necessary. For example, 123.
-
-##### `tt`: This specifier represents the AM/PM designator in a 12-hour time format. It is typically used alongside the hh specifier to indicate whether the time is in the AM or PM. For example, AM or PM.
 
 ### Examples
 
 ```json
 "logDateFormat": "yyyy'/'MM'/'dd hh:mm:ss tt"
 ```
-Output: <code>2024/06/29 03:19:30 p.m.</code>
+*Output:* 2024/06/29 03:19:30 PM
 
 ```json
 "logDateFormat": "MM/dd/yyyy HH:mm:ss"
 ```
-Output: <code>06.29.2024 15:19:30</code>
+*Output:* 06/29/2024 15:19:30
 
 ```json
 "logDateFormat": "dd-MM-yyyy HH:mm:ss"
 ```
-Output: <code>29-06-2024 15:19:30</code>
+*Output:* 29-06-2024 15:19:30
 
-### Numbered Version
----
-`folderNumber`: Set this to `true` to enable automatic renaming of the folder based on the downloaded Chrome version. This action requires administrative privileges.
 
-For example, if this option is enabled, the folders will be named as follows:
+## Numbered Versioning
 
-`false`:
-```css
-Chrome - VERSION_force_update
-```
+Enable automatic folder renaming based on the downloaded application's version by setting `folderNumber` to `true`. **Note:** This requires administrative privileges.
 
-`true`:
-```css
-Chrome - 129.0.6668.101_force_update
-```
+**Examples:**
 
-The `folderNumber` configuration requires administrative privileges because the only way to obtain the Chrome version number is by installing the MSI file and retrieving the version from the Windows registry.
+- **Disabled (`folderNumber`: `false`):**
+  ```plaintext
+  Chrome - VERSION_force_update
+  ```
+
+- **Enabled (`folderNumber`: `true`):**
+  ```plaintext
+  Chrome - 129.0.6668.101_force_update
+  ```
+
+*Reason:* Retrieving the application's version number necessitates administrative access to install the MSI file and access the Windows registry.
 
 ## Dell Command | Update
-The Dell config requires python because they block any script that tries to fetch their html file. The python script emulates a browser and fetches the latest download url. If you don't have Python installed. Install it manually. Recommended version is 3.12.4
 
-The script automatically installs the requirements file. This means you only have to install python manually.
+The Dell Command | Update configuration leverages Python to bypass restrictions that prevent scripts from fetching their HTML files directly. The Python script mimics a browser to obtain the latest download URL. 
+
+**Requirements:**
+
+- **Python Installation:** Python must be installed manually (recommended version: 3.12.4).
+- **Automatic Dependency Installation:** The script will automatically install required Python packages via the `requirements.txt` file. Manual installation of Python is required.
 
 ## NTFY Integration
 
-The script includes integration with NTFY, a notification service that allows you to receive updates about the script's execution and any new versions detected. This feature can be particularly useful for monitoring the status of downloads and installations without needing to constantly check the logs.
+MSI-Downloader integrates with [NTFY](https://ntfy.sh), a notification service that sends updates about script execution and detected new versions.
 
 ### Configuration
 
-To enable NTFY notifications, ensure that the following configuration options are set in your `config.json` file:
+To enable NTFY notifications, update the `ntfy` section in `config.json`:
 
 ```json
 "ntfy": {
     "URL": "https://ntfy.yourdomain.com/your-topic",
     "Title": "",
-    "Priority": "max",
-    "Enabled": true
+    "Priority": "default",
+    "Enabled": false
 }
 ```
 
-- **URL**: The endpoint for your NTFY notifications. Replace `https://ntfy.yourdomain.com/your-topic` with your actual NTFY URL.
-- **Title**: The title of the notification. This can be customized to reflect the nature of the notifications you want to receive. Leave it empty to let the script select the best titles
-- **Priority**: The priority level of the notification. Options include `max`, `high`, `normal`, `low`, and `min`.
-- **Enabled**: Set this to `true` to activate notifications. If set to `false`, notifications will be disabled.
+- **URL**: Endpoint for NTFY notifications. Replace with your actual NTFY URL.
+- **Title**: Customize the notification title. Leave empty for automatic titles.
+- **Priority**: Set notification priority (`max`, `high`, `default`, `low`, `min`).
+- **Enabled**: Set to `true` to activate notifications.
 
 ### Notification Triggers
 
-The script will send notifications in the following scenarios:
+Notifications are sent in the following scenarios:
 
-- When a new version of a program is detected.
-- When a new version of the script is detected.
-- If any errors occur during the execution of the script, such as failed downloads or installations.
+- Detection of a new program version.
+- Detection of a new script version.
+- Execution errors (e.g., failed downloads or installations).
 
 ### Example Notification
 
-When a new version is detected, you might receive a notification like this:
+When a new version is detected:
 
 ```
-Title: NotepadPlusPlus - 8.7
+Title: NotepadPlusPlus - 8.7 | MSI-Downloader
 Message: New version of NotepadPlusPlus - 8.7 detected
 ```
 
-This integration helps keep you informed about the script's activities and ensures you are aware of any important updates or issues that may arise during its execution.
+This ensures you stay informed about the script's activities and any critical updates or issues.
 
-## Arguments
-<p align="center">
-  <img src="./image.png" alt="Image-of-arguments" width="100%"/>
-</p>
+## Usage
 
-## Script Usage
-### 1. Downloading the Script:
+### Installation
 
-You can download the script using `git clone` command. Follow these steps:
+1. **Clone the Repository:**
 
-1. Open your terminal or command prompt.
-2. Navigate to the directory where you want to download the script.
-3. Run the following command:
+   ```bash
+   git clone https://github.com/OlaYZen/MSI-Downloader.git
+   ```
+
+2. **Navigate to the Directory:**
+
+   ```bash
+   cd MSI-Downloader
+   ```
+
+### Running the Script
+
+1. **Open PowerShell:**
+   
+2. **Navigate to the Script Directory:**
+
+   ```powershell
+   cd path\to\MSI-Downloader
+   ```
+
+3. **Execute the Script:**
+
+   ```powershell
+   .\Downloader.ps1
+   ```
+
+### Monitoring Logs
+
+- **Log File Location:** `Downloader.log` in the script directory.
+- **Purpose:** Provides detailed logs of the execution process, including errors.
+
+## Script Update
+
+To update the script to the latest version from GitHub:
+
+```powershell
+.\Downloader.ps1 -Update
 ```
-git clone https://github.com/OlaYZen/MSI-Downloader.git
-```
 
-This command will clone the repository into your current directory.
+**Caution:** This command currently only updates the `Downloader.ps1` script, which may potentially break functionality. For optimal results, manually upgrade to ensure the latest `config.json` and template folders are included.
 
-### 2. Run the Script:
+## Recommendations
 
-- Open PowerShell and navigate to the directory containing the script and config.json.
-- Execute the script:
-```ps1
-.\Downloader.ps1
-```
-### 3. Monitor the Logs:
+- **PowerShell Version:** It is recommended to use **PowerShell 7** or **Windows PowerShell ISE** for optimal performance.
+  
+  - **Reason:** PowerShell 5 has significantly slower download speeds compared to PowerShell 7 or ISE. This improvement is due to the more efficient `Invoke-RestMethod` cmdlet in newer versions, which facilitates faster HTTP and HTTPS requests essential for downloading content from the web.
 
-- Check `Downloader.log` in the script directory for detailed logs of the execution process, including any errors encountered.
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes.
