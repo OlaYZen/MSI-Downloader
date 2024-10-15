@@ -142,7 +142,7 @@
   "ntfy": {
     "URL": "ttps://ntfy.yourdomain.com/your-topic",
     "Title": "",
-    "Priority": "normal",
+    "Priority": "default",
     "Enabled": false
   },
   "license": true,

@@ -1222,7 +1222,7 @@ if ($t) {
             runScript
 
             for ($i = $intervalSeconds; $i -ge 1; $i--) {
-                
+                Clear-Host
                 $days = [math]::Floor($i / 86400)
                 $remaining = $i % 86400
                 $hours = [math]::Floor($remaining / 3600)
@@ -1243,8 +1243,7 @@ if ($t) {
                 }
 
                 $countdown += "$seconds`s..."
-
-                Clear-Host && Write-Host "Script will restart in $countdown"
+                Write-Host "Script will restart in $countdown"
                 Start-Sleep -Seconds 1
             }
 
@@ -1254,12 +1253,8 @@ if ($t) {
                 # Clear the contents of the log file
                 Set-Content -Path $logFilePath -Value $null
             }
-        }
     }
-    else {
-        Write-Host "Invalid interval format. Use number followed by s, m, h, or d (e.g., 30m)."
-        exit
-    }
+} 
 else {
     runScript
 }
