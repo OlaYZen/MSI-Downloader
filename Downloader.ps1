@@ -86,13 +86,13 @@ if ($h) {
     Write-Host "Options:"
     Write-Host "  -h, -Help         Displays this help message."
     Write-Host "  -v, -Version      Displays the current version of the script."
+    Write-Host "  -y, -Yes          Automatically starts the script without requiring a Y/n response if the script is outdated."
     Write-Host "  -t, -Timer        Sets a timer interval for script execution."
     Write-Host ""
     Write-Host "Update Options:"
     Write-Host "  -u, -Update       Updates the script to the latest version and restarts the script."
     Write-Host "  -f, -Force        Forces the script to update to the latest version."
     Write-Host "  -s, -Start        Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]"
-    Write-Host "  -y, -Yes          Automatically starts the script without requiring a Y/n response if the script is outdated."
     Write-Host ""
     Write-Host "Other Options:"
     Write-Host "  -c, -Config       Opens the config file in the default text editor."
@@ -116,7 +116,13 @@ function sendNTFY {
                 }
                 Body = $message
             }
-            Invoke-RestMethod @Request >> $null
+            if ($config.debug -eq $true) {
+                $response = Invoke-RestMethod @Request
+                Log_Message "Debug: $response"
+            }
+            else {
+                Invoke-RestMethod @Request >> $null
+            }
         } catch {
             Log_Message "Warn: Failed to send NTFY notification - $_"
         }
@@ -1162,12 +1168,7 @@ if ($config.old -eq $true -and $checker -eq $true) {
             } else {
                 Log_Message "Info: New file detected `"$($folder.Name)`""
                 Write-Output "Info: New file detected `"$($folder.Name)`""
-
-                if ($config.ntfy.Enabled -eq $true) {
-
                 SendNTFY -title "$($folder.Name) | MSI-Downloader" -message "New version of $($folder.Name) detected"
-                }
-
             }
         }
     }
@@ -1188,35 +1189,40 @@ else {
 if ($t) {
     # Check if a time interval is provided
     if ($args.Count -eq 0) {
-        Write-Host "Please specify a time interval after -t (e.g., -t 30m)"
+        Write-Host "Please specify a time interval after -t (e.g., -t 2d 5h 15m 10s)"
         exit
     }
 
-    # Get the time interval argument
-    $intervalArg = $args[0]
+    $intervalSeconds = 0
 
-    # Parse the interval (e.g., 30m, 1h, 2d, 10s)
-    if ($intervalArg -match '^(\d+)([smhd])$') {
-        $value = [int]$matches[1]
-        $unit = $matches[2]
+    # Parse each interval argument (e.g., 2d, 5h, 15m, 10s)
+    foreach ($intervalArg in $args) {
+        if ($intervalArg -match '^(\d+)([smhd])$') {
+            $value = [int]$matches[1]
+            $unit = $matches[2]
 
-        switch ($unit) {
-            's' { $intervalSeconds = $value }
-            'm' { $intervalSeconds = $value * 60 }
-            'h' { $intervalSeconds = $value * 3600 }
-            'd' { $intervalSeconds = $value * 86400 }
-            default {
-                Write-Host "Invalid time unit. Use s, m, h, or d."
-                exit
+            switch ($unit) {
+                's' { $intervalSeconds += $value }
+                'm' { $intervalSeconds += $value * 60 }
+                'h' { $intervalSeconds += $value * 3600 }
+                'd' { $intervalSeconds += $value * 86400 }
+                default {
+                    Write-Host "Invalid time unit. Use s, m, h, or d."
+                    exit
+                }
             }
+        } else {
+            Write-Host "Invalid interval format. Use number followed by s, m, h, or d (e.g., 2d 5h 15m 10s)."
+            exit
         }
+    }
 
         # Run the script in an infinite loop with the specified interval
         while ($true) {
             runScript
 
             for ($i = $intervalSeconds; $i -ge 1; $i--) {
-                Clear-Host
+                
                 $days = [math]::Floor($i / 86400)
                 $remaining = $i % 86400
                 $hours = [math]::Floor($remaining / 3600)
@@ -1238,7 +1244,7 @@ if ($t) {
 
                 $countdown += "$seconds`s..."
 
-                Write-Host "Script will restart in $countdown"
+                Clear-Host && Write-Host "Script will restart in $countdown"
                 Start-Sleep -Seconds 1
             }
 
@@ -1254,7 +1260,6 @@ if ($t) {
         Write-Host "Invalid interval format. Use number followed by s, m, h, or d (e.g., 30m)."
         exit
     }
-}
 else {
     runScript
 }
