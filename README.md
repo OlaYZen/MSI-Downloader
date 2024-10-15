@@ -317,6 +317,8 @@ You can call the MSI-Downloader script from another PowerShell script to automat
 .\Downloader.ps1 -p "SevenZip" -c "deleteExist folderNumber"
 ```
 
+the names is the same as they are in `config.json`
+NotepadPlusPlus, amazonWorkspace etc.
 
 ### Python Integration
 
