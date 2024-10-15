@@ -193,7 +193,7 @@ Customize timestamp formats using the following specifiers:
 ```json
 "logDateFormat": "MM/dd/yyyy HH:mm:ss"
 ```
-*Output:* 06/29/2024 15:19:30
+*Output:* 06.29.2024 15:19:30
 
 ```json
 "logDateFormat": "dd-MM-yyyy HH:mm:ss"
