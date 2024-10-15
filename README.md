@@ -29,7 +29,6 @@
 - [Recommendations](#recommendations)
 - [License](#license)
 - [Contributing](#contributing)
-- [Contact](#contact)
 
 ## Overview
 
