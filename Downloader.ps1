@@ -101,7 +101,6 @@ if ($h) {
 }
 
 function sendNTFY {
-    
     param (
         [string]$title,
         [string]$message
@@ -117,7 +116,7 @@ function sendNTFY {
                 }
                 Body = $message
             }
-            Invoke-RestMethod @Request >> null
+            Invoke-RestMethod @Request >> $null
         } catch {
             Log_Message "Warn: Failed to send NTFY notification - $_"
         }
@@ -275,6 +274,9 @@ $VLCdestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$VLCNaming $VL
 $LenovoSystemUpdateDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$LenovoSystemUpdateNaming $LenovoSystemUpdatePrefix"
 $DellCommandUpdateDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$DellCommandUpdateNaming $DellCommandUpdatePrefix"
 $JabraDirectDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$JabraDirectNaming $JabraDirectPrefix"
+
+$Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced -or $config.Firefox.options.download -or $config.amazonWorkspace.options.download -or $config.SevenZip.options.download -or $config.WinRAR.options.download -or $config.NotepadPlusPlus.options.download -or $config.VLC.options.download -or $config.LenovoSystemUpdate.options.download -or $config.DellCommandUpdate.options.down
+
 function runScript {
 
 # Log the start of the script
@@ -293,24 +295,49 @@ $apps = @(
 )
 
 foreach ($app in $apps) {
-    if ($app.download -and $app.deleteExist) {
-        $testPath = "$PSScriptRoot\$($app.naming) *"
-        $subfolders = @()
-
-        if (Test-Path $testPath) {
-            $subfolders = Get-ChildItem -Path $testPath -Directory | ForEach-Object { $_.FullName }
-            Remove-Item $testPath -Recurse -Force
-        }
-
-        foreach ($subfolder in $subfolders) {
-            try {
-                if ($config.debug -eq $true) {Log_Message "Debug: The Folder `"$subfolder\`" has been deleted."}
-            } catch {
-                Write-Host "Warn: logging message: $_"
+    if ($config.old -eq $true -and $Checker -eq $true){
+        if ($app.download -and $app.deleteExist) {
+            $testPath = "$PSScriptRoot\$($app.naming) *"
+            $subfolders = @()
+    
+            if (Test-Path $testPath) {
+                $subfolders = Get-ChildItem -Path $testPath -Directory | ForEach-Object { $_.FullName }
+                Move-Item -Path $testPath -Destination "$PSScriptRoot\.Old"
+            }
+            else {
+                Remove-Item -Path $testPath -Recurse -Force
+            }
+    
+            foreach ($subfolder in $subfolders) {
+                try {
+                    if ($config.debug -eq $true) {Log_Message "Debug: The Folder `"$subfolder\`" has been moved to `.Old`."}
+                } catch {
+                    Write-Host "Warn: logging message: $_"
+                }
             }
         }
     }
+    else {
+        if ($app.download -and $app.deleteExist) {
+            $testPath = "$PSScriptRoot\$($app.naming) *"
+            $subfolderz = @()
+    
+            if (Test-Path $testPath) {
+                $subfolderz = Get-ChildItem -Path $testPath -Directory | ForEach-Object { $_.FullName }
+                Remove-Item $testPath -Recurse -Force
+            }
+    
+            foreach ($subfolder in $subfolderz) {
+                try {
+                    if ($config.debug -eq $true) {Log_Message "Debug: The Folder `"$subfolder\`" has been deleted."}
+                } catch {
+                    Write-Host "Warn: logging message: $_"
+                }
+            }
+        }
+    }   
 }
+
 # Define URLs
 if ($config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced){
     # Chrome 64-bit URL
@@ -1113,9 +1140,6 @@ if ($CheckerFolder) {
 else {
     Write-Output "For additional logs, please refer to $PSScriptRoot\$logFileNameFormat"
 }
-$Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced -or $config.Firefox.options.download -or $config.amazonWorkspace.options.download -or $config.SevenZip.options.download -or $config.WinRAR.options.download -or $config.NotepadPlusPlus.options.download -or $config.VLC.options.download -or $config.LenovoSystemUpdate.options.download -or $config.DellCommandUpdate.options.download -or $config.JabraDirect.options.download 
-
-
 
 if ($config.old -eq $true -and $checker -eq $true) {
     $oldFolderPath = "$PSScriptRoot\.Old"
