@@ -64,15 +64,19 @@ if ($c) {
     exit
 }
 
-if ($config.logging.clearLogs) {
-    # Construct the full path to the log file
+function Clear-Logs {
     $logFilePath = Join-Path -Path $PSScriptRoot -ChildPath $logFileNameFormat
-    # Clear the contents of the log file
     Set-Content -Path $logFilePath -Value $null
 }
 
+if ($config.logging.clearLogs) {
+    Clear-Logs
+}
+
+
+
 Clear-Host
-$currentVersion = "v1.1.0"
+$currentVersion = "v1.1.1"
 
 if ($v) {
     Write-Host "Version: $currentVersion"
@@ -713,7 +717,6 @@ if ($config.license) {
 
 # Conditional execution based on config
 if ($config.chrome.options.downloadRegular) {
-    # Create main folder and files folder if they don't exist
     $folderName = "$chromeNaming $CHROMEprefix"
     $folderPath = Join-Path -Path $PSScriptRoot -ChildPath $folderName
     $filesFolder = Join-Path -Path $folderPath -ChildPath "Files"
@@ -728,7 +731,6 @@ if ($config.chrome.options.downloadRegular) {
         }
     }
 
-    # Copy items from source folder to destination folder
     try {
         Copy-Item -Path $sourceFolderRegular\* -Destination $destinationFolder -Recurse -Force -ErrorAction Stop
         Log_Message "Info: Regular Template successfully copied to `"$destinationFolder`""
@@ -1195,7 +1197,6 @@ if ($t) {
 
     $intervalSeconds = 0
 
-    # Parse each interval argument (e.g., 2d, 5h, 15m, 10s)
     foreach ($intervalArg in $args) {
         if ($intervalArg -match '^(\d+)([smhd])$') {
             $value = [int]$matches[1]
@@ -1217,7 +1218,6 @@ if ($t) {
         }
     }
 
-        # Run the script in an infinite loop with the specified interval
         while ($true) {
             runScript
 
@@ -1248,10 +1248,7 @@ if ($t) {
             }
 
             if ($config.logging.clearLogs) {
-                # Construct the full path to the log file
-                $logFilePath = Join-Path -Path $PSScriptRoot -ChildPath $logFileNameFormat
-                # Clear the contents of the log file
-                Set-Content -Path $logFilePath -Value $null
+                Clear-Logs
             }
     }
 } 
