@@ -25,6 +25,7 @@
   - [Installation](#installation)
   - [Running the Script](#running-the-script)
   - [Monitoring Logs](#monitoring-logs)
+- [Arguments](#arguments)
 - [Script Update](#script-update)
 - [Recommendations](#recommendations)
 - [License](#license)
@@ -305,6 +306,16 @@ This ensures you stay informed about the script's activities and any critical up
 
 - **Log File Location:** `Downloader.log` in the script directory.
 - **Purpose:** Provides detailed logs of the execution process, including errors.
+
+## Arguments
+
+The script supports several command-line arguments to enhance its functionality and provide flexibility in its execution. Here are the available arguments:
+
+![Arguments Image](./image.png)
+
+These arguments allow you to control the script's behavior directly from the command line, making it easier to automate and integrate into other workflows.
+
+
 
 ## Script Update
 
