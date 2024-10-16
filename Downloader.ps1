@@ -4,15 +4,119 @@
     [Alias("Update")][switch]$u,
     [Alias("Start")][switch]$s,
     [Alias("Force")][switch]$f,
-    [Alias("Log")][switch]$l,
-    [Alias("Config")][switch]$c,
+    [Alias("Log-File")][switch]$lf,
+    [Alias("Config")][string]$c,
+    [Alias("Config-File")][switch]$cf,
     [Alias("Version")][switch]$v,
-    [Alias("Timer")][switch]$t
+    [Alias("Program")][string]$p,
+    [Alias("Timer")][string]$t
 )
 
-# Read configuration from JSON file
-$configPath = "$PSScriptRoot\config.json"
-$config = Get-Content -Path $configPath | ConvertFrom-Json
+if ($c -and $p) {
+    $tempConfigPath = Join-Path -Path $PSScriptRoot -ChildPath "temp_config.json"
+    $tempConfig = @{
+        $p = @{
+            options = @{
+                deleteExist = $false
+                folderNumber = $false
+                folderName = "$p -"
+                Prefix = "VERSION"
+                specificURL = ""
+                download = $true
+            }
+            template = @{
+                templateFolderName = "$p-Template"
+            }
+        }
+        logging = @{
+            logName = "Downloader"
+            logFormat = "log"
+            logDateFormat = "dd/MM/yyyy HH:mm:ss"
+            clearLogs = $false
+        }
+        ntfy = @{
+            Priority = "default"
+            URL = "https://random.url"
+            Title = ""
+            Enabled = $false
+        }
+        license = $false
+        debug = $false
+    }
+
+    switch ($p) {
+        "chrome" {
+            $tempConfig.$p.options.folderName = "Chrome -"
+            $tempConfig.$p.options.forcedSuffix = "_force_update"
+            $tempConfig.$p.template.templateFolderNameRegular = "Chrome-Template"
+            $tempConfig.$p.template.templateFolderNameForced = "Chrome-Template-Forced"
+            $tempConfig.$p.options.specificURL64 = ""
+            $tempConfig.$p.options.specificURL32 = ""
+        }
+        "SevenZip" {
+            $tempConfig.$p.options.folderName = "7-Zip -"
+            $tempConfig.$p.template.templateFolderName = "7-Zip-Template"
+        }
+        "amazonWorkspace" {
+            $tempConfig.$p.options.folderName = "Amazon Workspace -"
+            $tempConfig.$p.template.templateFolderName = "Amazon-Workspace-Template"
+        }
+        "VLC" {
+            $tempConfig.$p.options.folderName = "VLC Media Player -"
+            $tempConfig.$p.template.templateFolderName = "VLC-Template"
+        }
+        "LenovoSystemUpdate" {
+            $tempConfig.$p.options.folderName = "Lenovo System Update -"
+            $tempConfig.$p.template.templateFolderName = "Lenovo-System-Update-Template"
+        }
+        "DellCommandUpdate" {
+            $tempConfig.$p.options.folderName = "Dell Command Update -"
+            $tempConfig.$p.template.templateFolderName = "Dell-Command-Update-Template"
+        }
+        "JabraDirect" {
+            $tempConfig.$p.options.folderName = "Jabra Direct -"
+            $tempConfig.$p.template.templateFolderName = "Jabra-Direct-Template"
+        }
+    }
+
+    if ($null -ne $c) {
+        $confOptions = $c.Split(" ")
+        foreach ($option in $confOptions) {
+            switch ($option) {
+                "downloadRegular" { if ($p -eq "chrome") { $tempConfig.$p.options.downloadRegular = $true }}
+                "downloadForced" { if ($p -eq "chrome") { $tempConfig.$p.options.downloadForced = $true }}
+                "deleteExist" { $tempConfig.$p.options.deleteExist = $true }
+                "folderNumber" { $tempConfig.$p.options.folderNumber = $true }
+                "old" { $tempConfig.old = $true }
+                "clearLogs" { $tempConfig.logging.clearLogs = $true }
+                "debug" { $tempConfig.debug = $true }
+                default { Write-Host "Invalid config option: $option" }
+            }
+        }
+    } else {
+        Write-Host "Error: Config parameter is null or empty."
+    }
+
+    try {
+        $tempConfig | ConvertTo-Json | Out-File -FilePath $tempConfigPath -Force
+        Write-Host "Temporary config file created at $tempConfigPath"
+        # Read configuration from JSON file
+        
+        $configPath = "$PSScriptRoot\temp_config.json"
+        $config = Get-Content -Path $configPath | ConvertFrom-Json
+
+        Remove-Item -Path $configPath -Force
+    } catch {
+        Write-Host "Error: Unable to create temporary config file at $tempConfigPath. $_"
+    }
+}
+else {
+    # Read configuration from JSON file
+    $configPath = "$PSScriptRoot\config.json"
+    $config = Get-Content -Path $configPath | ConvertFrom-Json
+}
+
+
 
 # Define headers
 $headers = @{
@@ -50,14 +154,14 @@ if ($logFileFormat -eq "") {
 
 $logFileNameFormat = $logFileName+"."+$logFileFormat
 
-if ($l) {
+if ($lf -and -not $p) {
     $logFilePath = "$PSScriptRoot\$logFileNameFormat"
     Invoke-Item -Path $logFilePath
     if ($config.debug -eq $true) {Log_Message "Debug: Opening the log file..."}
     exit
 }
 
-if ($c) {
+if ($cf -and -not $p) {
     $configFilePath = "$PSScriptRoot\config.json"
     Invoke-Item -Path $configFilePath
     if ($config.debug -eq $true) {Log_Message "Debug: Opening the config file..."}
@@ -69,14 +173,8 @@ function Clear-Logs {
     Set-Content -Path $logFilePath -Value $null
 }
 
-if ($config.logging.clearLogs) {
-    Clear-Logs
-}
-
-
-
 Clear-Host
-$currentVersion = "v1.1.1"
+$currentVersion = "v1.1.2"
 
 if ($v) {
     Write-Host "Version: $currentVersion"
@@ -88,19 +186,24 @@ if ($h) {
     Write-Host "Usage: .\Downloader.ps1 [options]"
     Write-Host ""
     Write-Host "Options:"
-    Write-Host "  -h, -Help         Displays this help message."
-    Write-Host "  -v, -Version      Displays the current version of the script."
-    Write-Host "  -y, -Yes          Automatically starts the script without requiring a Y/n response if the script is outdated."
-    Write-Host "  -t, -Timer        Sets a timer interval for script execution."
+    Write-Host "  -h, -Help          Displays this help message."
+    Write-Host "  -v, -Version       Displays the current version of the script."
+    Write-Host "  -y, -Yes           Automatically starts the script without requiring a Y/n response if the script is outdated."
+    Write-Host "  -t, -Timer         Sets a timer interval for script execution. [-t|-Timer `"1h 30m`"] [-t|-Timer `"2d 10s`"]"
+    Write-Host ""
+    Write-Host "Program Options:"
+    Write-Host "  -p, -Program       Allows you to specify a program to download."
+    Write-Host "  -c, -Config        Allows you to specify a config option(s) to use."
+    Write-Host "                     [deleteExist, folderNumber, downloadRegular, downloadForced, old, clearLogs, debug]"
     Write-Host ""
     Write-Host "Update Options:"
-    Write-Host "  -u, -Update       Updates the script to the latest version and restarts the script."
-    Write-Host "  -f, -Force        Forces the script to update to the latest version."
-    Write-Host "  -s, -Start        Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]"
+    Write-Host "  -u, -Update        Updates the script to the latest version and restarts the script."
+    Write-Host "  -f, -Force         Forces the script to update to the latest version."
+    Write-Host "  -s, -Start         Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]"
     Write-Host ""
     Write-Host "Other Options:"
-    Write-Host "  -c, -Config       Opens the config file in the default text editor."
-    Write-Host "  -l, -Log          Opens the log file in the default text editor."
+    Write-Host "  -cf, -Config-File  Opens the config file in the default text editor."
+    Write-Host "  -lf, -Log-File     Opens the log file in the default text editor."
     exit
 }
 
@@ -175,7 +278,7 @@ if ($u) {
     exit
 }
 
-if (-not $u -and -not $l -and -not $c -and -not $v) {
+if (-not $u -and -not $lf -and -not $c -and -not $v) {
         function Check-NewVersion {
             param (
                 [string]$repoUrl,
@@ -190,19 +293,24 @@ if (-not $u -and -not $l -and -not $c -and -not $v) {
                 $latestVersion = $latestRelease.tag_name
     
                 if ($latestVersion -ne $currentVersion) {
-                    Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
-                    if ($config.debug) { Log_Message "Debug: The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader." }
-                    if (-not $y) {
-                        SendNTFY -title "Version Update | MSI-Downloader" -message "New version of MSI-Downloader detected. Version: $latestVersion"
-                    }
-                    if ($autoYes) {
-                        $userInput = "Y"
+                    if ($latestVersion -lt $currentVersion) {
+                        Write-Host "You are running a newer version ($currentVersion) than the latest released version ($latestVersion)."
+                        if ($config.debug) { Log_Message "Debug: You are running a newer version ($currentVersion) than the latest released version ($latestVersion)." }
                     } else {
-                        $userInput = Read-Host "Do you want to start the script? (Y/n)"
-                    }
-                    
-                    if ($userInput -notin @("Y", "y", "")) {
-                        exit
+                        Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
+                        if ($config.debug) { Log_Message "Debug: The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader." }
+                        if (-not $y) {
+                            SendNTFY -title "Version Update | MSI-Downloader" -message "New version of MSI-Downloader detected. Version: $latestVersion"
+                        }
+                        if ($autoYes) {
+                            $userInput = "Y"
+                        } else {
+                            $userInput = Read-Host "Do you want to start the script? (Y/n)"
+                        }
+                        
+                        if ($userInput -notin @("Y", "y", "")) {
+                            exit
+                        }
                     }
                 } else {
                     Write-Host "You are using the latest version of the script."
@@ -287,7 +395,11 @@ $JabraDirectDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$Jabra
 
 $Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced -or $config.Firefox.options.download -or $config.amazonWorkspace.options.download -or $config.SevenZip.options.download -or $config.WinRAR.options.download -or $config.NotepadPlusPlus.options.download -or $config.VLC.options.download -or $config.LenovoSystemUpdate.options.download -or $config.DellCommandUpdate.options.down
 
-function runScript {
+if ($config.logging.clearLogs) {
+    Clear-Logs
+}
+
+function Run-Script {
 
 # Log the start of the script
 Log_Message "Info: Script started"
@@ -1189,15 +1301,18 @@ else {
 }
 
 if ($t) {
-    # Check if a time interval is provided
-    if ($args.Count -eq 0) {
-        Write-Host "Please specify a time interval after -t (e.g., -t 2d 5h 15m 10s)"
+    # Split the string into separate time arguments (e.g., "2d 1h" becomes an array of "2d", "1h")
+    $timeArgs = $t -split ' '
+
+    # Check if time intervals are provided
+    if ($timeArgs.Count -eq 0) {
+        Write-Host "Please specify a time interval after -t (e.g., -t '2d 1h 30m')"
         exit
     }
 
     $intervalSeconds = 0
 
-    foreach ($intervalArg in $args) {
+    foreach ($intervalArg in $timeArgs) {
         if ($intervalArg -match '^(\d+)([smhd])$') {
             $value = [int]$matches[1]
             $unit = $matches[2]
@@ -1208,50 +1323,59 @@ if ($t) {
                 'h' { $intervalSeconds += $value * 3600 }
                 'd' { $intervalSeconds += $value * 86400 }
                 default {
-                    Write-Host "Invalid time unit. Use s, m, h, or d."
+                    Write-Host "Invalid time unit: '$unit'. Use s (seconds), m (minutes), h (hours), or d (days)."
                     exit
                 }
             }
         } else {
-            Write-Host "Invalid interval format. Use number followed by s, m, h, or d (e.g., 2d 5h 15m 10s)."
+            Write-Host "Invalid interval format: '$intervalArg'. Use number followed by s, m, h, or d (e.g., '2d 5h 15m 10s')."
             exit
         }
     }
 
-        while ($true) {
-            runScript
-
-            for ($i = $intervalSeconds; $i -ge 1; $i--) {
-                Clear-Host
-                $days = [math]::Floor($i / 86400)
-                $remaining = $i % 86400
-                $hours = [math]::Floor($remaining / 3600)
-                $remaining = $remaining % 3600
-                $minutes = [math]::Floor($remaining / 60)
-                $seconds = $remaining % 60
-
-                $countdown = ""
-
-                if ($days -gt 0) {
-                    $countdown += "$days`d "
-                }
-                if ($hours -gt 0) {
-                    $countdown += "$hours`h "
-                }
-                if ($minutes -gt 0) {
-                    $countdown += "$minutes`m "
-                }
-
-                $countdown += "$seconds`s..."
-                Write-Host "Script will restart in $countdown"
-                Start-Sleep -Seconds 1
-            }
-
-            if ($config.logging.clearLogs) {
-                Clear-Logs
-            }
+    if ($config.debug -eq $true) {
+        Log_Message "Debug: Total interval set to $intervalSeconds seconds."
     }
-} 
+
+    if ($intervalSeconds -le 0) {
+        Write-Host "Total interval must be greater than 0 seconds."
+        exit
+    }
+
+    while ($true) {
+        Run-Script
+
+        for ($i = $intervalSeconds; $i -ge 1; $i--) {
+            Clear-Host
+            $days = [math]::Floor($i / 86400)
+            $remaining = $i % 86400
+            $hours = [math]::Floor($remaining / 3600)
+            $remaining = $remaining % 3600
+            $minutes = [math]::Floor($remaining / 60)
+            $seconds = $remaining % 60
+
+            $countdown = ""
+
+            if ($days -gt 0) {
+                $countdown += "$days`d "
+            }
+            if ($hours -gt 0) {
+                $countdown += "$hours`h "
+            }
+            if ($minutes -gt 0) {
+                $countdown += "$minutes`m "
+            }
+
+            $countdown += "$seconds`s..."
+            Write-Host "Script will restart in $countdown"
+            Start-Sleep -Seconds 1
+        }
+
+        if ($config.logging.clearLogs) {
+            Clear-Logs
+        }
+    }
+}
 else {
-    runScript
+    Run-Script
 }
