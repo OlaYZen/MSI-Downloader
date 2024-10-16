@@ -191,11 +191,12 @@ if ($h) {
     Write-Host "  -h, -Help          Displays this help message."
     Write-Host "  -v, -Version       Displays the current version of the script."
     Write-Host "  -y, -Yes           Automatically starts the script without requiring a Y/n response if the script is outdated."
-    Write-Host "  -t, -Timer         Sets a timer interval for script execution."
+    Write-Host "  -t, -Timer         Sets a timer interval for script execution. [-t|-Timer `"1h 30m`"] [-t|-Timer `"2d 10s`"]"
     Write-Host ""
     Write-Host "Program Options:"
     Write-Host "  -p, -Program       Allows you to specify a program to download."
-    Write-Host "  -c, -Config        Allows you to specify a config option(s) to use. [deleteExist, folderNumber, downloadRegular, downloadForced, old, clearLogs, debug]"
+    Write-Host "  -c, -Config        Allows you to specify a config option(s) to use."
+    Write-Host "                     [deleteExist, folderNumber, downloadRegular, downloadForced, old, clearLogs, debug]"
     Write-Host ""
     Write-Host "Update Options:"
     Write-Host "  -u, -Update        Updates the script to the latest version and restarts the script."
@@ -294,19 +295,24 @@ if (-not $u -and -not $l -and -not $c -and -not $v) {
                 $latestVersion = $latestRelease.tag_name
     
                 if ($latestVersion -ne $currentVersion) {
-                    Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
-                    if ($config.debug) { Log_Message "Debug: The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader." }
-                    if (-not $y) {
-                        SendNTFY -title "Version Update | MSI-Downloader" -message "New version of MSI-Downloader detected. Version: $latestVersion"
-                    }
-                    if ($autoYes) {
-                        $userInput = "Y"
+                    if ($latestVersion -lt $currentVersion) {
+                        Write-Host "You are running a newer version ($currentVersion) than the latest released version ($latestVersion)."
+                        if ($config.debug) { Log_Message "Debug: You are running a newer version ($currentVersion) than the latest released version ($latestVersion)." }
                     } else {
-                        $userInput = Read-Host "Do you want to start the script? (Y/n)"
-                    }
-                    
-                    if ($userInput -notin @("Y", "y", "")) {
-                        exit
+                        Write-Host "The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader."
+                        if ($config.debug) { Log_Message "Debug: The version $latestVersion exists. Please update from https://github.com/OlaYZen/MSI-Downloader." }
+                        if (-not $y) {
+                            SendNTFY -title "Version Update | MSI-Downloader" -message "New version of MSI-Downloader detected. Version: $latestVersion"
+                        }
+                        if ($autoYes) {
+                            $userInput = "Y"
+                        } else {
+                            $userInput = Read-Host "Do you want to start the script? (Y/n)"
+                        }
+                        
+                        if ($userInput -notin @("Y", "y", "")) {
+                            exit
+                        }
                     }
                 } else {
                     Write-Host "You are using the latest version of the script."
