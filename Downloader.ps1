@@ -61,6 +61,10 @@ if ($c -and $p) {
             $tempConfig.$p.options.folderName = "Amazon Workspace -"
             $tempConfig.$p.template.templateFolderName = "Amazon-Workspace-Template"
         }
+        "VLC" {
+            $tempConfig.$p.options.folderName = "VLC Media Player -"
+            $tempConfig.$p.template.templateFolderName = "VLC-Template"
+        }
         "LenovoSystemUpdate" {
             $tempConfig.$p.options.folderName = "Lenovo System Update -"
             $tempConfig.$p.template.templateFolderName = "Lenovo-System-Update-Template"
@@ -169,12 +173,6 @@ function Clear-Logs {
     Set-Content -Path $logFilePath -Value $null
 }
 
-if ($config.logging.clearLogs) {
-    Clear-Logs
-}
-
-
-
 Clear-Host
 $currentVersion = "v1.1.2"
 
@@ -280,7 +278,7 @@ if ($u) {
     exit
 }
 
-if (-not $u -and -not $l -and -not $c -and -not $v) {
+if (-not $u -and -not $lf -and -not $c -and -not $v) {
         function Check-NewVersion {
             param (
                 [string]$repoUrl,
@@ -396,6 +394,10 @@ $DellCommandUpdateDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "
 $JabraDirectDestinationFolder = Join-Path -Path $PSScriptRoot -ChildPath "$JabraDirectNaming $JabraDirectPrefix"
 
 $Checker = $config.chrome.options.downloadRegular -or $config.chrome.options.downloadForced -or $config.Firefox.options.download -or $config.amazonWorkspace.options.download -or $config.SevenZip.options.download -or $config.WinRAR.options.download -or $config.NotepadPlusPlus.options.download -or $config.VLC.options.download -or $config.LenovoSystemUpdate.options.download -or $config.DellCommandUpdate.options.down
+
+if ($config.logging.clearLogs) {
+    Clear-Logs
+}
 
 function Run-Script {
 
