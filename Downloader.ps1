@@ -9,7 +9,8 @@
     [Alias("Config-File")][switch]$cf,
     [Alias("Version")][switch]$v,
     [Alias("Program")][string]$p,
-    [Alias("Timer")][string]$t
+    [Alias("Timer")][string]$t,
+    [Alias("Starting-Timer")][string]$st
 )
 
 if ($c -and $p) {
@@ -174,7 +175,7 @@ function Clear-Logs {
 }
 
 Clear-Host
-$currentVersion = "v1.1.2"
+$currentVersion = "v1.1.3"
 
 if ($v) {
     Write-Host "Version: $currentVersion"
@@ -186,24 +187,26 @@ if ($h) {
     Write-Host "Usage: .\Downloader.ps1 [options]"
     Write-Host ""
     Write-Host "Options:"
-    Write-Host "  -h, -Help          Displays this help message."
-    Write-Host "  -v, -Version       Displays the current version of the script."
-    Write-Host "  -y, -Yes           Automatically starts the script without requiring a Y/n response if the script is outdated."
-    Write-Host "  -t, -Timer         Sets a timer interval for script execution. [-t|-Timer `"1h 30m`"] [-t|-Timer `"2d 10s`"]"
+    Write-Host "  -h, -Help              Displays this help message."
+    Write-Host "  -v, -Version           Displays the current version of the script."
+    Write-Host "  -y, -Yes               Automatically starts the script without requiring a Y/n response if the script is outdated."
+    Write-Host "  -t, -Timer             Sets a timer interval for script execution. [-t|-Timer `"1h 30m`"] [-t|-Timer `"2d 10s`"]"
+    Write-Host "  -st, -Starting-Timer   Sets a specific start time for the script execution. "
+    Write-Host "                         [-st|-Starting-Timer `"HH:mm`"] or [-st|-Starting-Timer `"dd/MM/yyyy HH:mm`"]"
     Write-Host ""
     Write-Host "Program Options:"
-    Write-Host "  -p, -Program       Allows you to specify a program to download."
-    Write-Host "  -c, -Config        Allows you to specify a config option(s) to use."
-    Write-Host "                     [deleteExist, folderNumber, downloadRegular, downloadForced, old, clearLogs, debug]"
+    Write-Host "  -p, -Program           Allows you to specify a program to download."
+    Write-Host "  -c, -Config            Allows you to specify a config option(s) to use."
+    Write-Host "                         [deleteExist, folderNumber, downloadRegular, downloadForced, old, clearLogs, debug]"
     Write-Host ""
     Write-Host "Update Options:"
-    Write-Host "  -u, -Update        Updates the script to the latest version and restarts the script."
-    Write-Host "  -f, -Force         Forces the script to update to the latest version."
-    Write-Host "  -s, -Start         Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]"
+    Write-Host "  -u, -Update            Updates the script to the latest version and restarts the script."
+    Write-Host "  -f, -Force             Forces the script to update to the latest version."
+    Write-Host "  -s, -Start             Starts the script. Combine with -u to start the script after updating. [-u|-Update -s|-Start]"
     Write-Host ""
     Write-Host "Other Options:"
-    Write-Host "  -cf, -Config-File  Opens the config file in the default text editor."
-    Write-Host "  -lf, -Log-File     Opens the log file in the default text editor."
+    Write-Host "  -cf, -Config-File      Opens the config file in the default text editor."
+    Write-Host "  -lf, -Log-File         Opens the log file in the default text editor."
     exit
 }
 
@@ -1300,7 +1303,12 @@ else {
 }
 }
 
-if ($t) {
+if ($t -or $st) {
+    # If -st is defined but not -t, default -t to be 24h
+    if ($st -and -not $t) {
+        $t = "24h"
+    }
+
     # Split the string into separate time arguments (e.g., "2d 1h" becomes an array of "2d", "1h")
     $timeArgs = $t -split ' '
 
@@ -1342,17 +1350,72 @@ if ($t) {
         exit
     }
 
-    while ($true) {
-        Run-Script
+    function Get-NextStartTime($startTime) {
+        $now = Get-Date
+        try {
+            $startDateTime = [datetime]::ParseExact($startTime, 'dd/MM/yyyy HH:mm', $null)
+        } catch {
+            $startDateTime = [datetime]::ParseExact($startTime, 'HH:mm', $null)
+            $startDateTime = $startDateTime.AddDays(($now.Date - $startDateTime.Date).Days)
+            if ($startDateTime -lt $now) {
+                $startDateTime = $startDateTime.AddDays(1)
+            }
+        }
+        return $startDateTime
+    }
 
-        for ($i = $intervalSeconds; $i -ge 1; $i--) {
+    if ($st) {
+        if ($config.debug -eq $true) {
+            Log_Message "Debug: Starting script at `"$st`""
+        }
+        $nextStartTime = Get-NextStartTime $st
+        $waitTime = $nextStartTime - (Get-Date)
+        while ($waitTime.TotalSeconds -gt 0) {
             Clear-Host
-            $days = [math]::Floor($i / 86400)
-            $remaining = $i % 86400
+            $days = [math]::Floor($waitTime.TotalSeconds / 86400)
+            $remaining = $waitTime.TotalSeconds % 86400
             $hours = [math]::Floor($remaining / 3600)
             $remaining = $remaining % 3600
             $minutes = [math]::Floor($remaining / 60)
-            $seconds = $remaining % 60
+            $seconds = [math]::Floor($remaining % 60)
+
+            $countdown = ""
+
+            if ($days -gt 0) {
+                $countdown += "$days`d "
+            }
+            if ($hours -gt 0) {
+                $countdown += "$hours`h "
+            }
+            if ($minutes -gt 0) {
+                $countdown += "$minutes`m "
+            }
+
+            $countdown += "$seconds`s..."
+            Write-Host "Script will start in $countdown"
+            Start-Sleep -Seconds 1
+            $waitTime = $nextStartTime - (Get-Date)
+        }
+    }
+
+    while ($true) {
+        Run-Script
+
+        if ($st) {
+            $nextStartTime = $nextStartTime.AddSeconds($intervalSeconds)
+            $waitTime = $nextStartTime - (Get-Date)
+        } else {
+            $waitTime = New-TimeSpan -Seconds $intervalSeconds
+        }
+
+        while ($waitTime.TotalSeconds -gt 0) {
+            Clear-Host
+            $days = [math]::Floor($waitTime.TotalSeconds / 86400)
+            $remaining = $waitTime.TotalSeconds % 86400
+            $hours = [math]::Floor($remaining / 3600)
+            $remaining = $remaining % 3600
+            $minutes = [math]::Floor($remaining / 60)
+            $seconds = [math]::Floor($remaining % 60)
 
             $countdown = ""
 
@@ -1369,6 +1432,7 @@ if ($t) {
             $countdown += "$seconds`s..."
             Write-Host "Script will restart in $countdown"
             Start-Sleep -Seconds 1
+            $waitTime = $waitTime.Subtract([timespan]::FromSeconds(1))
         }
 
         if ($config.logging.clearLogs) {

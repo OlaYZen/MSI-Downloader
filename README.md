@@ -302,9 +302,136 @@ This ensures you stay informed about the script's activities and any critical up
 
 The script supports several command-line arguments to enhance its functionality and provide flexibility in its execution. Here are the available arguments:
 
-![Arguments Image](./image.png)
+### -h | -Help
+ - **Description**: Displays a help menu that lists every argument and what they do.
+ - **Usage**: 
+   ```powershell
+   .\Downloader.ps1 -h
+   ```
+   This command will show a detailed help menu, providing descriptions and usage examples for all available arguments.
 
-These arguments allow you to control the script's behavior directly from the command line, making it easier to automate and integrate into other workflows.
+### -v | -Version
+ - **Description**: Displays the current installed version in the terminal.
+ - **Usage**: 
+   ```powershell
+   .\Downloader.ps1 -v
+   ```
+   This command will print the version number of the script currently installed, helping you ensure you are using the latest version.
+
+### -y | -Yes
+ - **Description**: Automatically says yes to the Y/n prompt if an update is available.
+ - **Usage**: 
+   ```powershell
+   .\Downloader.ps1 -y
+   ```
+   This command will bypass the confirmation prompt and proceed with the update automatically, making it useful for automated scripts or scheduled tasks.
+
+### -st | -Starting-Timer
+
+- **Description**: Sets a specific start time for the script execution. 
+- **Usage**: You can specify the start time in two formats:
+  - `HH:mm` for a specific time of day (e.g., `14:30` for 2:30 PM).
+  - `dd/MM/yyyy HH:mm` for a specific date and time (e.g., `29/06/2024 14:30`).
+- **Functionality**: The script will wait until the specified time before executing. If the specified time is in the past, it will schedule the script to run at the same time on the next day. If the user does not add a time to the `-t` and still uses the `-st`, it will default the `-t` to be 24h.
+- **Example**: To start the script at 3 PM, you would use `-t "24h" -st "15:00"`.
+
+  ```powershell
+  .\Downloader.ps1 -st "15:00" -t "24h"
+  ```
+  ```js
+  [18.10.2024 15:00:00] - Info: Script started
+  [18.10.2024 15:01:32] - Info: Script ended
+  [19.10.2024 15:00:00] - Info: Script started
+  [19.10.2024 15:01:32] - Info: Script ended
+  ```
+  Example **without** using the `-st` argument:
+    ```powershell
+  .\Downloader.ps1 -t "24h"
+  ```
+  ```js
+  [18.10.2024 15:00:00] - Info: Script started
+  [18.10.2024 15:01:32] - Info: Script ended
+  [19.10.2024 15:01:32] - Info: Script started
+  [18.10.2024 15:03:04] - Info: Script ended
+  ```
+
+### -t | -Timer
+
+- **Description**: Sets a timer interval for script execution.
+- **Usage**: Specify the interval in a format like `1h 30m` for 1 hour and 30 minutes, or `2d 10s` for 2 days and 10 seconds.
+
+### -p | -Program
+ - **Description**: Allows you to specify a program to download. The program name should match the keys in the `config.json` file (e.g., `chrome`, `Firefox`, `SevenZip`, etc.).
+ - **Usage**: 
+   ```powershell
+   .\Downloader.ps1 -p "chrome"
+   ```
+   This command will initiate the download process for the specified program.
+ 
+### -c | -Config
+ - **Description**: Allows you to specify one or more configuration options to apply when running the script. Options can include `deleteExist`, `folderNumber`, `downloadRegular`, `downloadForced`, `old`, `clearLogs`, and `debug`.
+ - **Usage**: 
+   ```powershell
+   .\Downloader.ps1 -p "chrome" -c "deleteExist folderNumber"
+   ```
+   This command will apply the specified configuration options while downloading the program.
+
+### -u | -Update
+ - **Description**: Updates the script to the latest version from GitHub.
+ - **Usage**: 
+   ```powershell
+   .\Downloader.ps1 -u
+   ```
+   This command checks for the latest version and updates the script if a newer version is available.
+ 
+### -f | -Force
+ - **Description**: Forces the script to update to the latest version, even if the current version is the latest.
+ - **Usage**: 
+   ```powershell
+   .\Downloader.ps1 -u -f
+   ```
+   This command will update the script regardless of the current version.
+ 
+### -s | -Start
+ - **Description**: Starts the script immediately. Combine with `-u` to start the script after updating.
+ - **Usage**: 
+   ```powershell
+   .\Downloader.ps1 -u -s
+   ```
+   This command updates the script and then starts it immediately.
+ 
+### -cf | -Config-File
+ - **Description**: Opens the configuration file in the default text editor.
+ - **Usage**: 
+   ```powershell
+   .\Downloader.ps1 -cf
+   ```
+   This command opens the `config.json` file for editing.
+ 
+### -lf | -Log-File
+ - **Description**: Opens the log file in the default text editor.
+ - **Usage**: 
+   ```powershell
+   .\Downloader.ps1 -lf
+   ```
+   This command opens the log file to review the execution logs.
+ 
+### Examples of Argument Combinations
+ - Download a specific program every day at `1:23 PM`:
+   ```powershell
+   .\Downloader.ps1 -p "NotepadPlusPlus" -c "deleteExist folderNumber" -st "13:23" -t "24h"
+   ```
+ - Download the programs every `two hours`:
+   ```powershell
+   .\Downloader.ps1 -t "2h" -st "14:00" -y   
+   ```
+ - Force update the script and start it after:
+   ```powershell
+   .\Downloader.ps1 -u -f -s
+   ```
+ 
+ These arguments allow you to control the script's behavior directly from the command line, making it easier to automate and integrate into other workflows.
+
 
 ## Integration with Other Programs
 
