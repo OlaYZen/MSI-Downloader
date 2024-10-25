@@ -137,7 +137,8 @@
     "logName": "Downloader",
     "logFormat": "log",
     "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
-    "clearLogs": false
+    "clearLogs": false,
+    "logLevel": "Info"
   },
   "ntfy": {
     "URL": "ttps://ntfy.yourdomain.com/your-topic",
@@ -146,6 +147,5 @@
     "Enabled": false
   },
   "license": true,
-  "debug": false,
   "old": false
 }

@@ -34,6 +34,7 @@ if ($c -and $p) {
             logFormat = "log"
             logDateFormat = "dd/MM/yyyy HH:mm:ss"
             clearLogs = $false
+            logLevel = "None"
         }
         ntfy = @{
             Priority = "default"
@@ -42,7 +43,6 @@ if ($c -and $p) {
             Enabled = $false
         }
         license = $false
-        debug = $false
     }
 
     switch ($p) {
@@ -90,7 +90,10 @@ if ($c -and $p) {
                 "folderNumber" { $tempConfig.$p.options.folderNumber = $true }
                 "old" { $tempConfig.old = $true }
                 "clearLogs" { $tempConfig.logging.clearLogs = $true }
-                "debug" { $tempConfig.debug = $true }
+                "logNone" { $tempConfig.logging.logLevel = "None" }
+                "logInfo" { $tempConfig.logging.logLevel = "Info" }
+                "logDebug" { $tempConfig.logging.logLevel = "Debug" }
+                "logError" { $tempConfig.logging.logLevel = "Error" }
                 default { Write-Host "Invalid config option: $option" }
             }
         }
@@ -139,25 +142,39 @@ function Log_Message {
         [string]$message,
         [string]$level
     )
-    if ($config.debug -eq $false -and $level -eq "Debug") {
-        return
-    }
-    if ($config.debug -eq $true) {
-        if ($level -eq "Info") {
-            $levels = "Info "
-        }
-        elseif ($level -eq "Warn") {
-            $levels = "Warn "
-        }
-        elseif ($level -eq "Debug") {
-            $levels = "Debug"
-        }
+
+    # Define acceptable logging levels
+    $validLevels = @("None", "Info", "Debug", "Error")
+    
+    # Check if the provided level is valid
+    if ($validLevels -notcontains $level) {
+        throw "Invalid log level: $level. Valid levels are None, Info, Debug, Error."
     }
 
-    $timestamp = Get-Date -Format $dateFormat
-    Write-Output "[$timestamp] - $levels - $message" | Out-File -Append -FilePath "$PSScriptRoot\$logFileNameFormat" -Encoding utf8
+    # Determine the numeric representation of each level
+    $levelOrder = @{
+        "None"  = 0
+        "Info"  = 1
+        "Debug" = 2
+        "Error" = 3
+    }
+
+    # Get the configuration level
+    $configLevel = $levelOrder[$config.logging.logLevel]
+    $messageLevel = $levelOrder[$level]
+
+    # Check if the message level should be logged based on configuration
+    if ($messageLevel -le $configLevel) {
+        # Format timestamp
+        $timestamp = Get-Date -Format $dateFormat
+        # Output log message
+        if ($config.logging.logLevel -eq "Debug" -or $config.logging.logLevel -eq "Error") {
+            if ($level -eq "Info") {$level = "Info "}
+        }
+
+        Write-Output "[$timestamp] - $level - $message" | Out-File -Append -FilePath "$PSScriptRoot\$logFileNameFormat" -Encoding utf8
+    }
 }
-
 
 # Function to log messages with the specified date format
 $logFileName = $config.logging.logName
@@ -213,7 +230,7 @@ if ($h) {
     Write-Host "Program Options:"
     Write-Host "  -p, -Program           Allows you to specify a program to download."
     Write-Host "  -c, -Config            Allows you to specify a config option(s) to use."
-    Write-Host "                         [deleteExist, folderNumber, downloadRegular, downloadForced, old, clearLogs, debug]"
+    Write-Host "                         [deleteExist, folderNumber, downloadRegular, downloadForced, old, clearLogs, logNone, logInfo, logDebug, logError]"
     Write-Host ""
     Write-Host "Update Options:"
     Write-Host "  -u, -Update            Updates the script to the latest version and restarts the script."
@@ -242,11 +259,11 @@ function sendNTFY {
                 }
                 Body = $message
             }
-            if ($config.debug -eq $false) {Invoke-RestMethod @Request >> $null}
+            if ($config.logging.logLevel -eq "Info") {Invoke-RestMethod @Request >> $null}
             $response = Invoke-RestMethod @Request
             Log_Message "$response" -level "Debug"
         } catch {
-            Log_Message "Failed to send NTFY notification - $_" -level "Warn"
+            Log_Message "Failed to send NTFY notification - $_" -level "Error"
         }
     }
 }
@@ -449,7 +466,7 @@ foreach ($app in $apps) {
                 try {
                     Log_Message "The Folder `"$subfolder\`" has been moved to `.Old`." -level "Debug"
                 } catch {
-                    Write-Host "Warn - logging message: $_"
+                    Write-Host "Error - logging message: $_"
                 }
             }
         }
@@ -468,7 +485,7 @@ foreach ($app in $apps) {
                 try {
                     Log_Message "The Folder `"$subfolder\`" has been deleted." -level "Debug"
                 } catch {
-                    Write-Host "Warn - logging message: $_"
+                    Write-Host "Error - logging message: $_"
                 }
             }
         }
@@ -570,7 +587,7 @@ if ($config.SevenZip.options.download){
             $7ZipfileName = [System.IO.Path]::GetFileName($7zipmsiLink)
             
         } else {
-            Log_Message "7-Zip URL not found." -level "Warn"
+            Log_Message "7-Zip URL not found." -level "Error"
         }
 
 
@@ -614,7 +631,7 @@ if ($config.WinRAR.options.download){
         $winrarfileName = [System.IO.Path]::GetFileName($winrarexeLink)
 
         } else {
-            Log_Message "WinRAR URL not found." -level "Warn"
+            Log_Message "WinRAR URL not found." -level "Error"
         }
 
         $winrar64BitUrl = $winrarexeLink
@@ -656,7 +673,7 @@ if ($config.NotepadPlusPlus.options.download){
             $NotepadPlusPlus64BitUrlClean = "npp.$version.Installer.x64.exe"
         }
         else {
-            Log_Message "Version number not found in the HTML content." -level "Warn"
+            Log_Message "Version number not found in the HTML content." -level "Error"
         }
     }
     else {
@@ -691,7 +708,7 @@ if ($config.VLC.options.download){
         $vlcfileName = [System.IO.Path]::GetFileName($vlcexeLink)
 
         } else {
-            Log_Message "VLC URL not found." -level "Warn"
+            Log_Message "VLC URL not found." -level "Error"
         }
 
         $VLC64BitUrl = $vlcexeLink
@@ -754,7 +771,7 @@ if ($config.DellCommandUpdate.options.download){
     $pythonInstalled = Get-Command python -ErrorAction SilentlyContinue
 
     if (-not $pythonInstalled) {
-        Log_Message "Python is not installed. The script will be stopped." -level "Warn"
+        Log_Message "Python is not installed. The script will be stopped." -level "Error"
         exit
     }
 
@@ -770,7 +787,7 @@ if ($config.DellCommandUpdate.options.download){
             & python -m pip install -r $requirementsPath
             Log_Message "Requirements installed from requirements.txt" -level "Debug"
         } catch {
-            Log_Message "Failed to install requirements from requirements.txt. $_" -level "Warn"
+            Log_Message "Failed to install requirements from requirements.txt. $_" -level "Error"
             exit
         }
     }
@@ -783,11 +800,11 @@ if ($config.DellCommandUpdate.options.download){
         $process = Start-Process -FilePath "python" -ArgumentList $pythonScriptPath -NoNewWindow -Wait -PassThru
         if ($process.ExitCode -eq 0) {
         } else {
-            Log_Message "Python script dell.py failed with exit code $($process.ExitCode)" -level "Warn"
+            Log_Message "Python script dell.py failed with exit code $($process.ExitCode)" -level "Error"
             exit
         }
     } catch {
-        Log_Message "Failed to start the Python script dell.py. $_" -level "Warn"
+        Log_Message "Failed to start the Python script dell.py. $_" -level "Error"
         exit
     }
 
@@ -825,7 +842,7 @@ if ($config.license) {
             Write-Host $copyrightContent
             Log_Message "Loaded license from local LICENSE file." -level "Debug"
         } catch {
-            Log_Message "Failed to read local LICENSE file - $_" -level "Warn"
+            Log_Message "Failed to read local LICENSE file - $_" -level "Error"
         }
     } else {
         try {
@@ -835,7 +852,7 @@ if ($config.license) {
             Write-Host $copyrightContent
             Log_Message "Loaded license from URL." -level "Info"
         } catch {
-            Log_Message "Failed to fetch license from URL - $_" -level "Warn"
+            Log_Message "Failed to fetch license from URL - $_" -level "Error"
         }
     }
 }
@@ -851,7 +868,7 @@ if ($config.chrome.options.downloadRegular) {
             New-Item -Path $filesFolder -ItemType Directory -ErrorAction Stop
             Log_Message "Directory creation, `"$chromeNaming $CHROMEprefix`" and `"Files`" folder successfully created in `"$PSScriptRoot`"" -level "Info"
         } catch {
-            Log_Message "Directory creation failed - $_" -level "Warn"
+            Log_Message "Directory creation failed - $_" -level "Error"
             SendNTFY -title "Chrome | MSI-Downloader" -message "Directory creation failed - $_"
         }
     }
@@ -860,7 +877,7 @@ if ($config.chrome.options.downloadRegular) {
         Copy-Item -Path $sourceFolderRegular\* -Destination $destinationFolder -Recurse -Force -ErrorAction Stop
         Log_Message "Regular Template successfully copied to `"$destinationFolder`"" -level "Info"
     } catch {
-        Log_Message "Failed to copy Regular Template - $_" -level "Warn"
+        Log_Message "Failed to copy Regular Template - $_" -level "Error"
         SendNTFY -title "Chrome | MSI-Downloader" -message "Failed to copy Regular Template - $_"
     }
     
@@ -869,11 +886,11 @@ if ($config.chrome.options.downloadRegular) {
     $filePath1 = Join-Path -Path $filesFolder -ChildPath $fileName1
     try {
         Log_Message "Started downloading `"$fileName1`" from `"$chrome64BitUrl`"" -level "Debug"
-        if ($config.debug -eq $false) {Log_Message "Started downloading `"$fileName1`"" -level "Info"}
+        if ($config.logging.logLevel -eq "Info") {Log_Message "Started downloading `"$fileName1`"" -level "Info"}
         Invoke-RestMethod -Uri $chrome64BitUrl -OutFile $filePath1 -ErrorAction Stop
         Log_Message "Download complete, `"64-bit`" version of Chrome successfully downloaded to $filePath1" -level "Info"
     } catch {
-        Log_Message "`"64-bit`" Chrome download failed - $_" -level "Warn"
+        Log_Message "`"64-bit`" Chrome download failed - $_" -level "Error"
         SendNTFY -title "Chrome | MSI-Downloader" -message "`"64-bit`" Chrome download failed - $_"
     }
 
@@ -882,11 +899,11 @@ if ($config.chrome.options.downloadRegular) {
     $filePath2 = Join-Path -Path $filesFolder -ChildPath $fileName2
     try {
         Log_Message "Started downloading `"$fileName2`" from `"$chrome32BitUrl`"" -level "Debug"
-        if ($config.debug -eq $false) {Log_Message "Started downloading `"$fileName2`"" -level "Info"}
+        if ($config.logging.logLevel -eq "Info") {Log_Message "Started downloading `"$fileName2`"" -level "Info"}
         Invoke-RestMethod -Uri $chrome32BitUrl -OutFile $filePath2 -ErrorAction Stop
         Log_Message "Download complete, `"32-bit`" version of Chrome successfully downloaded to $filePath2" -level "Info"
     } catch {
-        Log_Message "`"32-bit`" Chrome download failed - $_" -level "Warn"
+        Log_Message "`"32-bit`" Chrome download failed - $_" -level "Error"
         SendNTFY -title "Chrome | MSI-Downloader" -message "`"32-bit`" Chrome download failed - $_"
     }
 }
@@ -898,7 +915,7 @@ if ($config.chrome.options.downloadForced) {
             New-Item -Path $forceUpdateFolder -ItemType Directory -ErrorAction Stop
             Log_Message "Directory creation, `"$chromeNaming $CHROMEprefix $ChromeFORCEDsuffix`" successfully created in `"$PSScriptRoot`"" -level "Info"
         } catch {
-            Log_Message "Force update directory creation failed - $_" -level "Warn"
+            Log_Message "Force update directory creation failed - $_" -level "Error"
             SendNTFY -title "Chrome | MSI-Downloader" -message "Force update directory creation failed - $_"
         }
     }
@@ -908,7 +925,7 @@ if ($config.chrome.options.downloadForced) {
         Copy-Item -Path "$sourceFolderForced\*" -Destination $forceUpdateFolder -Recurse -Force -ErrorAction Stop
         Log_Message "Forced Template successfully copied to `"$forceUpdateFolder`"" -level "Info"
     } catch {
-        Log_Message "Failed to copy Forced Template - $_" -level "Warn"
+        Log_Message "Failed to copy Forced Template - $_" -level "Error"
         SendNTFY -title "Chrome | MSI-Downloader" -message "Failed to copy Forced Template - $_"
     }
 
@@ -918,11 +935,11 @@ if ($config.chrome.options.downloadForced) {
         $filePath1 = Join-Path -Path $forceUpdateFolder -ChildPath $fileName1
         try {
             Log_Message "Started downloading `"$fileName1`" from `"$chrome64BitUrl`"" -level "Debug"
-            if ($config.debug -eq $false) {Log_Message "Started downloading `"$fileName1`"" -level "Info"}
+            if ($config.logging.logLevel -eq "Info") {Log_Message "Started downloading `"$fileName1`"" -level "Info"}
             Invoke-RestMethod -Uri $chrome64BitUrl -OutFile $filePath1 -ErrorAction Stop
             Log_Message "Download complete, `"64-bit`" version of Chrome successfully downloaded to force update folder at `"$filePath1`"" -level "Info"
         } catch {
-            Log_Message "`"64-bit`" Chrome download to force update folder failed - $_" -level "Warn"
+            Log_Message "`"64-bit`" Chrome download to force update folder failed - $_" -level "Error"
             SendNTFY -title "Chrome | MSI-Downloader" -message "`"64-bit`" Chrome download to force update folder failed - $_"
         }
     } else {
@@ -934,11 +951,11 @@ if ($config.chrome.options.downloadForced) {
                 Copy-Item -Path $filePath1 -Destination $forceUpdateFolder -Force -ErrorAction Stop
                 Log_Message "`"64-bit`" version of Chrome copied to force update folder at $forceUpdateFolder" -level "Info"
             } catch {
-                Log_Message "Failed to copy `"64-bit`" installer to force update folder - $_" -level "Warn"
+                Log_Message "Failed to copy `"64-bit`" installer to force update folder - $_" -level "Error"
                 SendNTFY -title "Chrome | MSI-Downloader" -message "Failed to copy `"64-bit`" installer to force update folder - $_"
             }
         } else {
-            Log_Message "`"64-bit`" version of Chrome was not downloaded and could not be copied to force update folder." -level "Warn"
+            Log_Message "`"64-bit`" version of Chrome was not downloaded and could not be copied to force update folder." -level "Error"
             SendNTFY -title "Chrome | MSI-Downloader" -message "`"64-bit`" version of Chrome was not downloaded and could not be copied to force update folder."
         }
     }
@@ -954,7 +971,7 @@ function CreateFolder {
             New-Item -Path $folderPath -ItemType Directory -ErrorAction Stop
             Log_Message "Directory creation, `"$logMessage`" successfully created in `"$PSScriptRoot`"" -level "Info"
         } catch {
-            Log_Message "Directory creation failed - $_" -level "Warn"
+            Log_Message "Directory creation failed - $_" -level "Error"
             SendNTFY -title "MSI-Downloader" -message "Directory creation failed - $_"
         }
     }
@@ -969,7 +986,7 @@ function CopyTemplate {
         Copy-Item -Path "$sourceFolder\*" -Destination $destinationFolder -Recurse -Force -ErrorAction Stop
         Log_Message "Template successfully copied to `"$destinationFolder`"" -level "Info"
     } catch {
-        Log_Message "Failed to copy Template - $_" -level "Warn"
+        Log_Message "Failed to copy Template - $_" -level "Error"
         SendNTFY -title "MSI-Downloader" -message "Failed to copy Template - $_"
     }
 }
@@ -983,11 +1000,11 @@ function DownloadInstaller {
     $filePath = Join-Path -Path $destinationFolder -ChildPath $fileName
     try {
         Log_Message "Started downloading `"$fileName`" from `"$url`"" -level "Debug"
-        if ($config.debug -eq $false) {Log_Message "Started downloading `"$fileName`"" -level "Info"}
+        if ($config.logging.logLevel -eq "Info") {Log_Message "Started downloading `"$fileName`"" -level "Info"}
         Invoke-RestMethod -Uri $url -OutFile $filePath -ErrorAction Stop -Headers $headers
         Log_Message "Download complete, `"$fileName`" successfully downloaded to `"$filePath`"" -level "Info"
     } catch {
-        Log_Message "Download failed - $_" -level "Warn"
+        Log_Message "Download failed - $_" -level "Error"
         SendNTFY -title "MSI-Downloader" -message "Download failed - $_"
     }
 }
@@ -1002,7 +1019,7 @@ function CreateCmd {
         Set-Content -Path "$destinationFolder\$fileName" -Value $content
         Log_Message "$fileName successfully created in `"$destinationFolder`"" -level "Info"
     } catch {
-        Log_Message "Failed to create $fileName - $_" -level "Warn"
+        Log_Message "Failed to create $fileName - $_" -level "Error"
         SendNTFY -title "MSI-Downloader" -message "Failed to create $fileName - $_"
     }
 }
@@ -1020,7 +1037,7 @@ function MoveFolder {
             New-Item -Path $filesFolder -ItemType Directory -ErrorAction Stop | Out-Null
             Log_Message "Directory creation, `"$filesFolder`" successfully created." -level "Info"
         } catch {
-            Log_Message "Directory creation failed - $_" -level "Warn"
+            Log_Message "Directory creation failed - $_" -level "Error"
             SendNTFY -title "MSI-Downloader" -message "Directory creation failed - $_"
             return
         }
@@ -1030,7 +1047,7 @@ function MoveFolder {
         Move-Item -Path $filePath -Destination $filesFolder -ErrorAction Stop | Out-Null
         Log_Message "File `"$filePath`" successfully moved to `"$filesFolder`"" -level "Info"
     } catch {
-        Log_Message "File move failed - $_" -level "Warn"
+        Log_Message "File move failed - $_" -level "Error"
         SendNTFY -title "MSI-Downloader" -message "File move failed - $_"
     }
 }
@@ -1108,7 +1125,7 @@ $CheckerFolder = $config.chrome.options.folderNumber -or $config.Firefox.options
 if ($CheckerFolder) {
 	# Check if the script is running with administrative privileges
 	if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-        Log_Message "the config 'folderNumber' requires administrative privileges to run." -level "Warn"
+        Log_Message "the config 'folderNumber' requires administrative privileges to run." -level "Error"
         SendNTFY -title "MSI-Downloader" -message "the config 'folderNumber' requires administrative privileges to run."
 	}
 	else {
@@ -1130,11 +1147,11 @@ if ($CheckerFolder) {
                     Rename-Item -Path $destinationFolder -NewName $newFolderName -ErrorAction Stop
                     Log_Message "Folder renamed to `"$newFolderName`"" -level "Info"
                 } catch {
-                    Log_Message "Failed to rename folder - $_" -level "Warn"
+                    Log_Message "Failed to rename folder - $_" -level "Error"
                     SendNTFY -title "Chrome | MSI-Downloader" -message "Failed to rename folder - $_"
                 }
             } else {
-                Log_Message "Chrome version could not be determined. Folder was not renamed." -level "Warn"
+                Log_Message "Chrome version could not be determined. Folder was not renamed." -level "Error"
                 SendNTFY -title "Chrome | MSI-Downloader" -message "Chrome version could not be determined. Folder was not renamed."
             }
         }
@@ -1156,11 +1173,11 @@ if ($CheckerFolder) {
                     Rename-Item -Path $forceUpdateFolder -NewName $newFolderName -ErrorAction Stop
                     Log_Message "Folder renamed to `"$newFolderName`"" -level "Info"
                 } catch {
-                    Log_Message "Failed to rename folder - $_" -level "Warn"
+                    Log_Message "Failed to rename folder - $_" -level "Error"
                     SendNTFY -title "Chrome | MSI-Downloader" -message "Failed to rename folder - $_"
                 }
             } else {
-                Log_Message "Chrome version could not be determined. Folder was not renamed." -level "Warn"
+                Log_Message "Chrome version could not be determined. Folder was not renamed." -level "Error"
                 SendNTFY -title "Chrome | MSI-Downloader" -message "Chrome version could not be determined. Folder was not renamed."
             }
         }
@@ -1185,7 +1202,7 @@ if ($CheckerFolder) {
                     Rename-Item -Path $destinationFolder -NewName $newRegularFolderName -ErrorAction Stop
                     Log_Message "Folder renamed to `"$newRegularFolderName`"" -level "Info"
                 } catch {
-                    Log_Message "Failed to rename folder - $_" -level "Warn"
+                    Log_Message "Failed to rename folder - $_" -level "Error"
                     SendNTFY -title "Chrome | MSI-Downloader" -message "Failed to rename folder - $_"
                 }
         
@@ -1195,11 +1212,11 @@ if ($CheckerFolder) {
                     Rename-Item -Path $forceUpdateFolder -NewName $newForcedFolderName -ErrorAction Stop
                     Log_Message "Folder renamed to `"$newForcedFolderName`"" -level "Info"
                 } catch {
-                    Log_Message "Failed to rename folder - $_" -level "Warn"
+                    Log_Message "Failed to rename folder - $_" -level "Error"
                     SendNTFY -title "Chrome | MSI-Downloader" -message "Failed to rename folder - $_"
                 }
             } else {
-                Log_Message "Chrome version could not be determined. Folders were not renamed." -level "Warn"
+                Log_Message "Chrome version could not be determined. Folders were not renamed." -level "Error"
                 SendNTFY -title "Chrome | MSI-Downloader" -message "Chrome version could not be determined. Folders were not renamed."
             }
         }
@@ -1229,11 +1246,11 @@ if ($CheckerFolder) {
                         Start-Process -FilePath $app.msiPath -ArgumentList $app.installArgs -Wait
                         Log_Message "$($app.name) installation completed" -level "Info"
                     } else {
-                        Log_Message "Unsupported file type for $($app.name) installation." -level "Warn"
+                        Log_Message "Unsupported file type for $($app.name) installation." -level "Error"
                         SendNTFY -title "$($app.name) | MSI-Downloader" -message "Unsupported file type for $($app.name) installation."
                     }
                 } catch {
-                    Log_Message "Failed to start $($app.name) installation - $_" -level "Warn"
+                    Log_Message "Failed to start $($app.name) installation - $_" -level "Error"
                     continue
                 }
 
@@ -1255,15 +1272,15 @@ if ($CheckerFolder) {
                             Rename-Item -Path $oldFolderPath -NewName $newFolderName -ErrorAction Stop
                             Log_Message "Folder renamed to `"$newFolderName`"" -level "Info"
                         } catch {
-                            Log_Message "Failed to rename folder - $_" -level "Warn"
+                            Log_Message "Failed to rename folder - $_" -level "Error"
                             SendNTFY -title "$($app.name) | MSI-Downloader" -message "Failed to rename folder - $_"
                         }
                     } else {
-                        Log_Message "Folder path '$oldFolderPath' does not exist. Cannot rename folder." -level "Warn"
+                        Log_Message "Folder path '$oldFolderPath' does not exist. Cannot rename folder." -level "Error"
                         SendNTFY -title "$($app.name) | MSI-Downloader" -message "Folder path '$oldFolderPath' does not exist. Cannot rename folder."
                     }
                 } else {
-                    Log_Message "$($app.name) version could not be determined. Folder was not renamed." -level "Warn"
+                    Log_Message "$($app.name) version could not be determined. Folder was not renamed." -level "Error"
                     SendNTFY -title "$($app.name) | MSI-Downloader" -message "$($app.name) version could not be determined. Folder was not renamed."
                 }
             }
@@ -1297,12 +1314,12 @@ if ($config.old -eq $true -and $checker -eq $true) {
         }
     }
     } else {
-        Log_Message ".Old folder does not exist at '$oldFolderPath'." -level "Warn"
+        Log_Message ".Old folder does not exist at '$oldFolderPath'." -level "Error"
     }
 }
 
 if (-not $Checker) {
-    Log_Message "No download version selected in the configuration." -level "Warn"
+    Log_Message "No download version selected in the configuration." -level "Error"
 }
 else {
     Write-Output "For additional logs, please refer to $PSScriptRoot\$logFileNameFormat"

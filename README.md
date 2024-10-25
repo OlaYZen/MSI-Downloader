@@ -108,7 +108,8 @@ Below is an example of the `config.json` structure:
     "logName": "Downloader",
     "logFormat": "log",
     "logDateFormat": "dd'/'MM'/'yyyy HH:mm:ss",
-    "clearLogs": false
+    "clearLogs": false,
+    "logLevel": "Info"
   },
   "ntfy": {
     "URL": "https://ntfy.yourdomain.com/your-topic",
@@ -117,7 +118,6 @@ Below is an example of the `config.json` structure:
     "Enabled": false
   },
   "license": true,
-  "debug": false,
   "old": false
 }
 ```
@@ -150,11 +150,11 @@ Below is an example of the `config.json` structure:
 - `logFormat` (string): Format of the log file(s) (default: `log`).
 - `logDateFormat` (string): Timestamp format in logs (default: `dd'/'MM'/'yyyy HH:mm:ss`).
 - `clearLogs` (bool): Enable clearing of log files' content on execution.
+- `logLevel` (string): Determines the verbosity of log messages. Options include `None`, `Info`, `Debug`, and `Error`. (default: `Info`).
 
 ### Optional Extras
 
 - `license` (bool): Display the MIT license upon script start.
-- `debug` (bool): Enable debug mode for additional troubleshooting information.
 - `old` (bool): Moves downloaded applications into the .Old folder. This can then be used to find out if a newer version of a program exists
 
 ## Date Configuration
@@ -369,7 +369,7 @@ The script supports several command-line arguments to enhance its functionality 
    This command will initiate the download process for the specified program.
  
 ### -c | -Config
- - **Description**: Allows you to specify one or more configuration options to apply when running the script. Options can include `deleteExist`, `folderNumber`, `downloadRegular`, `downloadForced`, `old`, `clearLogs`, and `debug`.
+ - **Description**: Allows you to specify one or more configuration options to apply when running the script. Options can include `deleteExist`, `folderNumber`, `downloadRegular`, `downloadForced`, `old`, `clearLogs`, `logNone` `logInfo` `logDebug` and `logError`.
  - **Usage**: 
    ```powershell
    .\Downloader.ps1 -p "chrome" -c "deleteExist folderNumber"
